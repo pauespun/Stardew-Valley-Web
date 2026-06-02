@@ -74,8 +74,12 @@ WSGI_APPLICATION = 'stardew_valley.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'est_e7126609',
+        'USER': 'est_e7126609',
+        'PASSWORD': 'dB.e7126609',
+        'HOST': 'ubiwan.epsevg.upc.edu',
+        'PORT': '5432',
     }
 }
 
