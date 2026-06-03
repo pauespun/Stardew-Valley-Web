@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from core import views  # <-- Importem directament les eines del teu joc
+from core import views  
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # Aquí anirem posant totes les rutes del vostre joc!
+    path('login/', views.pantalla_login, name='login'), 
 ]
