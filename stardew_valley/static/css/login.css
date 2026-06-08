@@ -1,11 +1,9 @@
-/* Fons del joc i font tipus píxel */
 body {
-    /* Aquí carreguem la imatge. Assegura't que el nom coincideixi! */
     background-image: url('../img/Fondo.jpg');
-    background-size: cover;          /* Fa que la imatge ocupi tota la pantalla */
-    background-position: center;     /* Centra la imatge */
-    background-repeat: no-repeat;    /* Evita que la imatge es repeteixi si és petita */
-    background-attachment: fixed;    /* La imatge es queda fixa si fas scroll */
+    background-size: cover;          
+    background-position: center;     
+    background-repeat: no-repeat;    
+    background-attachment: fixed;    
     
     font-family: 'VT323', monospace;
     display: flex;
@@ -16,9 +14,7 @@ body {
     color: #3e2723;
 }
 
-/* El cartell de fusta del Login */
 .cartell-fusta {
-    /* Canviem el fons sòlid #d7ccc8 per rgb amb un 90% d'opacitat (0.9) */
     background-color: rgba(215, 204, 200, 0.9); 
     border: 8px solid #5d4037;
     border-radius: 10px;
@@ -31,10 +27,9 @@ body {
 .cartell-fusta h1 {
     font-size: 40px;
     margin-top: 0;
-    text-shadow: 2px 2px #fff; /* Efecte de relleu */
+    text-shadow: 2px 2px #fff; 
 }
 
-/* Estils dels camps de text */
 .camp-formulari {
     margin-bottom: 20px;
     text-align: left;
@@ -56,9 +51,8 @@ body {
     box-sizing: border-box;
 }
 
-/* El botó d'entrar */
 .boto-joc {
-    background-color: #ffca28; /* Groc Stardew */
+    background-color: #ffca28; 
     border: 4px solid #ff6f00;
     color: #3e2723;
     padding: 10px 20px;
@@ -74,6 +68,6 @@ body {
 }
 
 .boto-joc:active {
-    transform: translate(3px, 3px); /* Efecte de prémer el botó */
+    transform: translate(3px, 3px); 
     box-shadow: none;
 }

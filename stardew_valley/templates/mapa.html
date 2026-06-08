@@ -1,1 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
 
+{% block estils_de_pantalla %}
+<link rel="stylesheet" href="{% static 'css/mapa.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pantalla-interactiva">
+    <div class="hud-superior">
+        <div class="hud-item">💰 <span id="diners">500</span>G</div>
+        <div class="hud-item">🌱 Dia 1 - Primavera</div>
+        <div class="hud-item">⚡ <span id="energia">270</span>/270</div>
+    </div>
+
+    <div class="contenidor-mapa">
+        <div class="mapa-proporcional">
+            <img src="{% static 'img/MapaStardew.webp' %}" alt="Mapa Stardew" class="imatge-mapa">
+            
+            <a href="/granja" class="boto-lloc" style="top: 49%; left: 34%;">Granja</a>
+            <a href="/poble" class="boto-lloc" style="top: 52%; left: 63%;">Poble</a>
+            <a href="/bosc" class="boto-lloc" style="top: 77%; left: 34%;">Bosc</a>
+            <a href="/platja" class="boto-lloc" style="top: 86%; left: 71%;">Platja</a>
+            <a href="/muntanya" class="boto-lloc" style="top: 23%; left: 74%;">Muntanya</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
