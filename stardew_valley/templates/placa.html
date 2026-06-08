@@ -19,6 +19,7 @@
                 <img src="{% static 'img/Plaza.png' %}" alt="Plaça del Poble" class="imatge-terreny">
                 
                 <button id="btn-botiga" class="boto-botiga" style="top: 40%; left: 28%;">Comprar</button>
+                <button id="btn-vendre" class="boto-botiga" style="top: 37%; left: 80%;">Vendre</button>
                 <button id="btn-regalar-principal" class="boto-regalar-centre">Regalar</button>
             </div>
             
@@ -55,6 +56,38 @@
                 <button class="boto-acció" onclick="confirmarCompra()">Comprar</button>
             </div>
             <button class="boto-tancar" onclick="tancarModalBotiga()">Tancar</button>
+        </div>
+    </div>
+
+    <div id="modal-vendre" class="fons-modal">
+        <div class="finestra-modal botiga-modal">
+            <h2>Vendre a en Pierre</h2>
+            
+            <input type="text" id="cercador-venda" class="cercador-input" placeholder="Cercar article..." onkeyup="cercarVenda()">
+
+            <table class="taula-botiga">
+                <thead>
+                    <tr>
+                        <th>Article (Inventari)</th>
+                        <th>Preu (ut.)</th>
+                        <th>Quantitat a Vendre</th>
+                    </tr>
+                </thead>
+                <tbody id="llista-venda">
+                </tbody>
+            </table>
+            
+            <div class="paginacio">
+                <button onclick="canviarPaginaVenda(-1)">⬅️</button>
+                <span id="text-paginacio-venda">Pàgina 1 / 1</span>
+                <button onclick="canviarPaginaVenda(1)">➡️</button>
+            </div>
+
+            <div class="resum-compra">
+                <span>Total: <span id="total-venda">0</span>G</span>
+                <button class="boto-acció" onclick="confirmarVenda()">Vendre</button>
+            </div>
+            <button class="boto-tancar" onclick="tancarModalVendre()">Tancar</button>
         </div>
     </div>
 
@@ -107,198 +140,8 @@
     </div>
 </div>
 
-<script>
-    const nomsStardew = ["Abigail", "Alex", "Caroline", "Clint", "Demetrius", "Elliott", "Emily", "Evelyn", "George", "Gus", "Haley", "Harvey", "Jas", "Jodi", "Kent", "Krobus", "Leah", "Lewis", "Linus", "Marnie", "Maru", "Pam", "Penny", "Pierre", "Robin", "Sam", "Sandy", "Sebastian", "Shane", "Willy"];
-    const npcs = [];
-    
-    for (let i = 0; i < 30; i++) {
-        npcs.push({
-            nom: nomsStardew[i],
-            aniversari: `${Math.floor(Math.random() * 28) + 1} Primavera`,
-            relacio: Math.floor(Math.random() * 11)
-        });
-    }
+<script src="{% static 'js/placa_npcs.js' %}"></script>
+<script src="{% static 'js/placa_botiga.js' %}"></script>
+<script src="{% static 'js/placa_venda.js' %}"></script>
 
-    let paginaActual = 1;
-    const itemsPerPagina = 6;
-
-    const modalNpcs = document.getElementById('modal-npcs');
-    const modalObjectes = document.getElementById('modal-objectes');
-    const llistaNpcs = document.getElementById('llista-npcs');
-    const textPaginacio = document.getElementById('text-paginacio');
-    const btnRegalarPrincipal = document.getElementById('btn-regalar-principal');
-    const btnPrev = document.getElementById('btn-prev');
-    const btnNext = document.getElementById('btn-next');
-    const titolModalObjectes = document.getElementById('titol-modal-objectes');
-
-    const llavorsPrimavera = [
-        { id: 'xirivia', nom: 'Llavor de Xirivia', preu: 20 },
-        { id: 'mongeta', nom: 'Llavor de Mongeta verda', preu: 60 },
-        { id: 'coliflor', nom: 'Llavor de Coliflor', preu: 80 },
-        { id: 'patata', nom: 'Llavor de Patata', preu: 50 },
-        { id: 'tulipa', nom: 'Bulb de Tulipa', preu: 20 },
-        { id: 'all', nom: 'Llavor d\'All', preu: 40 },
-        { id: 'blat', nom: 'Llavor de Blat', preu: 25 },
-        { id: 'bleda', nom: 'Llavor de Bleda', preu: 30 },
-        { id: 'maduixa', nom: 'Llavor de Maduixa', preu: 100 },
-        { id: 'cirerer', nom: 'Planter de Cirerer', preu: 3400 },
-        { id: 'albercoquer', nom: 'Planter d\'Albercoquer', preu: 2000 }
-    ];
-
-    let llavorsFiltrades = [];
-    let cistella = {};
-    let paginaBotiga = 1;
-    const itemsPerPaginaBotiga = 5;
-
-    const btnBotiga = document.getElementById('btn-botiga');
-    const modalBotiga = document.getElementById('modal-botiga');
-    const llistaLlavors = document.getElementById('llista-llavors');
-    const totalCompraEl = document.getElementById('total-compra');
-    const textPaginacioBotiga = document.getElementById('text-paginacio-botiga');
-
-    btnRegalarPrincipal.addEventListener('click', obrirModalNpcs);
-    btnPrev.addEventListener('click', () => canviarPagina(-1));
-    btnNext.addEventListener('click', () => canviarPagina(1));
-    btnBotiga.addEventListener('click', obrirBotiga);
-
-    function obrirModalNpcs() {
-        modalNpcs.style.display = 'flex';
-        renderitzarNpcs();
-    }
-
-    function tancarModalNpcs() {
-        modalNpcs.style.display = 'none';
-    }
-
-    function renderitzarNpcs() {
-        llistaNpcs.innerHTML = '';
-        const inici = (paginaActual - 1) * itemsPerPagina;
-        const fi = inici + itemsPerPagina;
-        const npcsPagina = npcs.slice(inici, fi);
-
-        npcsPagina.forEach(npc => {
-            const targeta = document.createElement('div');
-            targeta.className = 'targeta-npc';
-            targeta.innerHTML = `
-                <div class="info-npc">
-                    <strong>${npc.nom}</strong><br>
-                    🎂 ${npc.aniversari}<br>
-                    ❤️ ${npc.relacio}/10
-                </div>
-                <button class="boto-acció" onclick="obrirModalObjectes('${npc.nom}')">Regalar</button>
-            `;
-            llistaNpcs.appendChild(targeta);
-        });
-
-        textPaginacio.innerText = `Pàgina ${paginaActual} / 5`;
-    }
-
-    function canviarPagina(direccio) {
-        paginaActual += direccio;
-        if (paginaActual < 1) paginaActual = 1;
-        if (paginaActual > 5) paginaActual = 5;
-        renderitzarNpcs();
-    }
-
-    function obrirModalObjectes(nomNpc) {
-        titolModalObjectes.innerText = `Regalar a ${nomNpc}`;
-        modalNpcs.style.display = 'none';
-        modalObjectes.style.display = 'flex';
-    }
-
-    function tancarModalObjectes() {
-        modalObjectes.style.display = 'none';
-        modalNpcs.style.display = 'flex';
-    }
-
-    function confirmarRegal() {
-        modalObjectes.style.display = 'none';
-        modalNpcs.style.display = 'none';
-    }
-
-    function obrirBotiga() {
-        cistella = {};
-        paginaBotiga = 1;
-        llavorsPrimavera.forEach(l => cistella[l.id] = 0);
-        llavorsFiltrades = [...llavorsPrimavera];
-        document.getElementById('cercador-llavors').value = '';
-        modalBotiga.style.display = 'flex';
-        renderitzarBotiga();
-        actualitzarTotal();
-    }
-
-    function tancarModalBotiga() {
-        modalBotiga.style.display = 'none';
-    }
-
-    function cercarLlavors() {
-        const text = document.getElementById('cercador-llavors').value.toLowerCase();
-        llavorsFiltrades = llavorsPrimavera.filter(l => l.nom.toLowerCase().includes(text));
-        paginaBotiga = 1;
-        renderitzarBotiga();
-    }
-
-    function canviarPaginaBotiga(direccio) {
-        const maxPagines = Math.ceil(llavorsFiltrades.length / itemsPerPaginaBotiga) || 1;
-        paginaBotiga += direccio;
-        if (paginaBotiga < 1) paginaBotiga = 1;
-        if (paginaBotiga > maxPagines) paginaBotiga = maxPagines;
-        renderitzarBotiga();
-    }
-
-    function renderitzarBotiga() {
-        llistaLlavors.innerHTML = '';
-        const maxPagines = Math.ceil(llavorsFiltrades.length / itemsPerPaginaBotiga) || 1;
-        textPaginacioBotiga.innerText = `Pàgina ${paginaBotiga} / ${maxPagines}`;
-
-        const inici = (paginaBotiga - 1) * itemsPerPaginaBotiga;
-        const fi = inici + itemsPerPaginaBotiga;
-        const llavorsPagina = llavorsFiltrades.slice(inici, fi);
-
-        llavorsPagina.forEach(llavor => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${llavor.nom}</td>
-                <td>${llavor.preu}G</td>
-                <td>
-                    <div class="control-quantitat">
-                        <button class="btn-quantitat" onclick="canviarQuantitat('${llavor.id}', -1)">-</button>
-                        <input type="number" id="q-${llavor.id}" class="input-quantitat" value="${cistella[llavor.id]}" min="0" onchange="inputQuantitat('${llavor.id}')">
-                        <button class="btn-quantitat" onclick="canviarQuantitat('${llavor.id}', 1)">+</button>
-                    </div>
-                </td>
-            `;
-            llistaLlavors.appendChild(tr);
-        });
-    }
-
-    function canviarQuantitat(id, canvi) {
-        let actual = parseInt(document.getElementById(`q-${id}`).value) || 0;
-        let nova = actual + canvi;
-        if (nova < 0) nova = 0;
-        document.getElementById(`q-${id}`).value = nova;
-        cistella[id] = nova;
-        actualitzarTotal();
-    }
-
-    function inputQuantitat(id) {
-        let val = parseInt(document.getElementById(`q-${id}`).value) || 0;
-        if (val < 0) val = 0;
-        document.getElementById(`q-${id}`).value = val;
-        cistella[id] = val;
-        actualitzarTotal();
-    }
-
-    function actualitzarTotal() {
-        let total = 0;
-        llavorsPrimavera.forEach(llavor => {
-            total += (cistella[llavor.id] || 0) * llavor.preu;
-        });
-        totalCompraEl.innerText = total;
-    }
-
-    function confirmarCompra() {
-        tancarModalBotiga();
-    }
-</script>
 {% endblock %}
