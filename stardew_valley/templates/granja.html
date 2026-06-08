@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block estils_de_pantalla %}
+<link rel="stylesheet" href="{% static 'css/granja.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pantalla-granja">
+    <div class="hud-superior">
+        <div class="hud-esquerra">💰 <span id="diners">500</span>G</div>
+        <div class="hud-centre">🌱 Dia 1 - Primavera</div>
+        <div class="hud-dreta">⚡ <span id="energia">270</span>/270</div>
+    </div>
+
+    <div class="contingut-granja">
+        
+        <div class="zona-terreny">
+            <div class="terreny-proporcional">
+                <img src="{% static 'img/Granja.webp' %}" alt="Terreny de la Granja" class="imatge-terreny">
+                
+                <button id="btn-zona-1" class="boto-plantar" style="top: 28%; left: 36%;" onclick="obrirModalPlantar(1)">Plantar</button>
+                
+                <button id="btn-zona-2" class="boto-plantar plantat" style="top: 28%; left: 65%;" disabled>Plantat</button>
+                
+                <button id="btn-zona-3" class="boto-plantar" style="top: 57%; left: 36%;" onclick="obrirModalPlantar(3)">Plantar</button>
+                
+                <button id="btn-zona-4" class="boto-plantar" style="top: 57%; left: 65%;" onclick="obrirModalPlantar(4)">Plantar</button>
+            </div>
+            
+            <a href="/mapa" class="boto-tornar">Tornar al Mapa</a>
+        </div>
+
+        <div class="zona-taula">
+            <div class="cartell-taula">
+                <h2>Estat dels Cultius</h2>
+                <table class="taula-cultius">
+                    <thead>
+                        <tr>
+                            <th>Parcel·la</th>
+                            <th>Cultiu</th>
+                            <th>Quantitat</th>
+                            <th>Dies restants</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="fila-zona-1">
+                            <td>Zona 1</td>
+                            <td id="cultiu-1" class="buit">Buit</td>
+                            <td id="quant-1">-</td>
+                            <td id="dies-1">-</td>
+                        </tr>
+                        <tr id="fila-zona-2" class="fila-plantada">
+                            <td>Zona 2</td>
+                            <td id="cultiu-2">Xirivia</td>
+                            <td id="quant-2">12</td>
+                            <td id="dies-2">🌱 4 dies</td>
+                        </tr>
+                        <tr id="fila-zona-3">
+                            <td>Zona 3</td>
+                            <td id="cultiu-3" class="buit">Buit</td>
+                            <td id="quant-3">-</td>
+                            <td id="dies-3">-</td>
+                        </tr>
+                        <tr id="fila-zona-4">
+                            <td>Zona 4</td>
+                            <td id="cultiu-4" class="buit">Buit</td>
+                            <td id="quant-4">-</td>
+                            <td id="dies-4">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="modal-plantar" class="fons-modal">
+        <div class="finestra-modal">
+            <h2 id="titol-modal-plantar">Plantar a la Zona</h2>
+            <table class="taula-inventari">
+                <thead>
+                    <tr>
+                        <th>Llavor</th>
+                        <th>Disponibles</th>
+                        <th>Quantitat a plantar</th>
+                        <th>Acció</th>
+                    </tr>
+                </thead>
+                <tbody id="llista-llavors-inventari">
+                </tbody>
+            </table>
+            <button class="boto-tancar" onclick="tancarModalPlantar()">Cancel·lar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let zonaActual = null;
+    
+    let inventariLlavors = [
+        { id: 'xirivia', nom: 'Llavor de Xirivia', quantitat: 15, dies: 4 },
+        { id: 'coliflor', nom: 'Llavor de Coliflor', quantitat: 5, dies: 12 },
+        { id: 'patata', nom: 'Llavor de Patata', quantitat: 8, dies: 6 },
+        { id: 'mongeta', nom: 'Llavor de Mongeta', quantitat: 20, dies: 10 }
+    ];
+    
+    let valorsPlantar = {};
+
+    function obrirModalPlantar(zona) {
+        zonaActual = zona;
+        document.getElementById('titol-modal-plantar').innerText = `Plantar a la Zona ${zona}`;
+        document.getElementById('modal-plantar').style.display = 'flex';
+        renderitzarInventariLlavors();
+    }
+
+    function tancarModalPlantar() {
+        document.getElementById('modal-plantar').style.display = 'none';
+        zonaActual = null;
+    }
+
+    function renderitzarInventariLlavors() {
+        const tbody = document.getElementById('llista-llavors-inventari');
+        tbody.innerHTML = '';
+        valorsPlantar = {};
+
+        inventariLlavors.forEach(llavor => {
+            if (llavor.quantitat > 0) {
+                valorsPlantar[llavor.id] = 1;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${llavor.nom}</td>
+                    <td>${llavor.quantitat}</td>
+                    <td>
+                        <div class="control-quantitat">
+                            <button class="btn-quantitat" onclick="canviarQuantitat('${llavor.id}', -1)">-</button>
+                            <input type="number" id="q-${llavor.id}" class="input-quantitat" value="1" min="1" max="${llavor.quantitat}" onchange="validarInput('${llavor.id}', ${llavor.quantitat})">
+                            <button class="btn-quantitat" onclick="canviarQuantitat('${llavor.id}', 1)">+</button>
+                        </div>
+                    </td>
+                    <td><button class="boto-acció" onclick="confirmarPlantacio('${llavor.id}')">Plantar</button></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        });
+    }
+
+    function canviarQuantitat(id, canvi) {
+        const llavor = inventariLlavors.find(l => l.id === id);
+        let novaQuantitat = valorsPlantar[id] + canvi;
+        if (novaQuantitat < 1) novaQuantitat = 1;
+        if (novaQuantitat > llavor.quantitat) novaQuantitat = llavor.quantitat;
+        valorsPlantar[id] = novaQuantitat;
+        document.getElementById(`q-${id}`).value = novaQuantitat;
+    }
+
+    function validarInput(id, max) {
+        let val = parseInt(document.getElementById(`q-${id}`).value) || 1;
+        if (val < 1) val = 1;
+        if (val > max) val = max;
+        valorsPlantar[id] = val;
+        document.getElementById(`q-${id}`).value = val;
+    }
+
+    function confirmarPlantacio(id) {
+        const llavor = inventariLlavors.find(l => l.id === id);
+        const quantitatPlantada = valorsPlantar[id];
+
+        llavor.quantitat -= quantitatPlantada;
+
+        const fila = document.getElementById(`fila-zona-${zonaActual}`);
+        fila.className = 'fila-plantada';
+        
+        const nomCurt = llavor.nom.replace('Llavor de ', '');
+        
+        document.getElementById(`cultiu-${zonaActual}`).innerText = nomCurt;
+        document.getElementById(`cultiu-${zonaActual}`).className = '';
+        document.getElementById(`quant-${zonaActual}`).innerText = quantitatPlantada;
+        document.getElementById(`dies-${zonaActual}`).innerText = `🌱 ${llavor.dies} dies`;
+
+        const btn = document.getElementById(`btn-zona-${zonaActual}`);
+        btn.innerText = 'Plantat';
+        btn.className = 'boto-plantar plantat';
+        btn.disabled = true;
+
+        tancarModalPlantar();
+    }
+</script>
+{% endblock %}
