@@ -169,6 +169,39 @@ class Plat(models.Model):
     def __str__(self):
         return self.id_article.nom_article
 
+class Llavor(models.Model):
+    preu_compra = models.DecimalField(max_digits=8, decimal_places=2)
+    esta_plantat = models.BooleanField(default=False)
+
+    cultiu = models.OneToOneField(
+        Cultiu,
+        on_delete=models.CASCADE,
+        related_name="llavor"
+    )
+
+class EspaiCultiu(models.Model):
+    partida = models.ForeignKey(
+        Partida,
+        on_delete=models.CASCADE,
+        related_name="espais_cultiu"
+    )
+
+    numero_parcela = models.PositiveSmallIntegerField()
+    
+    llavor = models.ForeignKey(
+        Llavor,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="espais_cultiu"
+    )
+
+    class Meta:
+        unique_together = ("partida", "numero_parcela")
+
+    def __str__(self):
+        return f"Partida {self.partida} - Espai {self.numero_parcela}"
+
 class Regal(models.Model):
     pk = models.CompositePrimaryKey(
         "id_partida",
