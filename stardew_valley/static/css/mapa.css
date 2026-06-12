@@ -36,7 +36,6 @@ body {
     overflow: hidden; 
 }
 
-/* El nou contenidor que s'adapta exactament a la imatge */
 .mapa-proporcional {
     position: relative; 
     display: inline-block;
@@ -46,7 +45,6 @@ body {
 
 .imatge-mapa {
     max-width: 100%;
-    /* Fa que la imatge agafi tot l'espai sobrant de la pantalla menys la barra de dalt */
     max-height: calc(100vh - 54px); 
     display: block;
     object-fit: contain; 
@@ -65,7 +63,6 @@ body {
     transition: transform 0.2s, background-color 0.2s;
     white-space: nowrap;
     z-index: 10;
-    /* El truc màgic: centra el botó just a sobre de la coordenada, no a la cantonada */
     transform: translate(-50%, -50%);
 }
 
@@ -73,4 +70,26 @@ body {
     background-color: #795548;
     transform: translate(-50%, -50%) scale(1.1); 
     color: #ffca28;
+}
+
+.boto-perfil {
+    position: absolute;
+    bottom: 25px;
+    right: 30px;
+    background-color: #ffecb3;
+    color: #3e2723;
+    text-decoration: none;
+    padding: 10px 24px;
+    font-size: 28px;
+    font-weight: bold;
+    border: 4px solid #5d4037;
+    border-radius: 8px;
+    box-shadow: 3px 4px 0px rgba(0,0,0,0.4);
+    z-index: 30;
+    transition: all 0.1s ease;
+}
+
+.boto-perfil:hover {
+    background-color: #ffd54f;
+    transform: scale(1.05);
 }

@@ -20,3 +20,6 @@ def zona_muntanya(request):
 
 def zona_bosc(request):
     return render(request, 'bosc.html')
+
+def pantalla_perfil(request):
+    return render(request, 'perfil.html')
