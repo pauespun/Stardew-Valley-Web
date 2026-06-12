@@ -27,4 +27,5 @@ urlpatterns = [
     path('platja/', views.zona_platja, name='platja'), 
     path('muntanya/', views.zona_muntanya, name='muntanya'),
     path('bosc/', views.zona_bosc, name='bosc'),
+    path('perfil/', views.pantalla_perfil, name='perfil'),
 ]

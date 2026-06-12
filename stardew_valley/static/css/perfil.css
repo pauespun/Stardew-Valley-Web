@@ -1,0 +1,144 @@
+body {
+    font-family: 'VT323', monospace;
+    margin: 0;
+    color: #3e2723;
+    background-color: #111;
+}
+
+.pantalla-perfil {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: url('../img/MapaStardew.webp');
+    background-size: cover;
+    background-position: center;
+}
+
+.pantalla-perfil::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+
+.hud-superior {
+    background-color: #ffecb3;
+    border-bottom: 4px solid #5d4037;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 30px;
+    font-size: 32px;
+    font-weight: bold;
+    box-sizing: border-box;
+    z-index: 20;
+    height: 55px;
+}
+
+.contingut-perfil {
+    display: flex;
+    flex-grow: 1;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.finestra-perfil {
+    background-color: #d7ccc8;
+    border: 8px solid #5d4037;
+    border-radius: 12px;
+    padding: 30px 40px;
+    width: 500px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+}
+
+.finestra-perfil h2 {
+    margin-top: 0;
+    font-size: 42px;
+    border-bottom: 4px solid #5d4037;
+    text-align: center;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
+.formulari-perfil {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.grup-camp {
+    display: flex;
+    flex-direction: column;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.grup-camp label {
+    margin-bottom: 5px;
+}
+
+.grup-camp input {
+    font-family: 'VT323', monospace;
+    font-size: 24px;
+    padding: 10px;
+    border: 3px solid #5d4037;
+    border-radius: 6px;
+    background-color: #fff3e0;
+    color: #3e2723;
+}
+
+.grup-camp input:focus {
+    outline: none;
+    border-color: #ffb300;
+    background-color: #fff;
+}
+
+.botons-formulari {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.boto-cancelar, .boto-guardar {
+    padding: 10px 25px;
+    font-family: 'VT323', monospace;
+    font-size: 26px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+
+.boto-cancelar {
+    background-color: #e53935;
+    color: white;
+    border: 4px solid #b71c1c;
+}
+
+.boto-cancelar:hover {
+    background-color: #ef5350;
+}
+
+.boto-guardar {
+    background-color: #4caf50;
+    color: white;
+    border: 4px solid #1b5e20;
+}
+
+.boto-guardar:hover {
+    background-color: #66bb6a;
+}
