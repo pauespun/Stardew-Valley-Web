@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block estils_de_pantalla %}
+<link rel="stylesheet" href="{% static 'css/platja.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pantalla-platja">
+    <div class="hud-superior">
+        <div class="hud-esquerra">💰 <span id="diners">500</span>G</div>
+        <div class="hud-centre">🌱 Dia 1 - Primavera</div>
+        <div class="hud-dreta">⚡ <span id="energia">270</span>/270</div>
+    </div>
+
+    <div class="contingut-platja">
+        <div class="zona-terreny">
+            
+            <div class="terreny-proporcional">
+                <img src="{% static 'img/Beach.png' %}" alt="La Platja" class="imatge-terreny">
+                
+                <button id="btn-pescar-port" class="boto-accio-mapa" style="top: 82%; left: 20%;">Pescar</button>
+            </div>
+            
+            <a href="/mapa" class="boto-tornar">Tornar al Mapa</a>
+            
+        </div>
+    </div>
+
+    <div id="modal-minijoc" class="fons-modal">
+        <div class="finestra-modal modal-pesca">
+            <h2>Pesca en curs...</h2>
+            
+            <div class="contenidor-barra">
+                <div id="barra-progres-pesca" class="barra-pesca"></div>
+            </div>
+            
+            <button id="btn-mantenir-pescar" class="boto-mantenir">MANTÉN PREMUT</button>
+            <button class="boto-tancar mt-20" onclick="tancarMinijoc()">Cancel·lar</button>
+        </div>
+    </div>
+
+    <div id="modal-resultat-pesca" class="fons-modal">
+        <div class="finestra-modal modal-resultat">
+            <h2>Captura aconseguida!</h2>
+            
+            <div class="info-captura">
+                <div id="nom-peix-capturat" class="text-peix"></div>
+                <div id="qualitat-peix-capturat" class="text-qualitat"></div>
+            </div>
+            
+            <div class="botons-decisio">
+                <button class="boto-agafar" onclick="agafarPeix()">Agafar</button>
+                <button class="boto-tirar" onclick="tirarPeix()">Tirar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/platja_pescar.js' %}"></script>
+{% endblock %}

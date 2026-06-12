@@ -24,4 +24,7 @@ urlpatterns = [
     path('mapa/', views.mapa_granja, name='mapa'), 
     path('granja/', views.zona_granja, name='granja'),
     path('poble/', views.zona_poble, name='poble'), 
+    path('platja/', views.zona_platja, name='platja'), 
+    path('muntanya/', views.zona_muntanya, name='muntanya'),
+    path('bosc/', views.zona_bosc, name='bosc'),
 ]
