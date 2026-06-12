@@ -20,11 +20,8 @@
                 <img src="{% static 'img/Granja.webp' %}" alt="Terreny de la Granja" class="imatge-terreny">
                 
                 <button id="btn-zona-1" class="boto-plantar" style="top: 28%; left: 36%;" onclick="obrirModalPlantar(1)">Plantar</button>
-                
-                <button id="btn-zona-2" class="boto-plantar plantat" style="top: 28%; left: 65%;" disabled>Plantat</button>
-                
+                <button id="btn-zona-2" class="boto-plantar" style="top: 28%; left: 65%;" onclick="obrirModalPlantar(2)">Plantar</button>
                 <button id="btn-zona-3" class="boto-plantar" style="top: 57%; left: 36%;" onclick="obrirModalPlantar(3)">Plantar</button>
-                
                 <button id="btn-zona-4" class="boto-plantar" style="top: 57%; left: 65%;" onclick="obrirModalPlantar(4)">Plantar</button>
             </div>
             
@@ -50,11 +47,11 @@
                             <td id="quant-1">-</td>
                             <td id="dies-1">-</td>
                         </tr>
-                        <tr id="fila-zona-2" class="fila-plantada">
+                        <tr id="fila-zona-2">
                             <td>Zona 2</td>
-                            <td id="cultiu-2">Xirivia</td>
-                            <td id="quant-2">12</td>
-                            <td id="dies-2">🌱 4 dies</td>
+                            <td id="cultiu-2" class="buit">Buit</td>
+                            <td id="quant-2">-</td>
+                            <td id="dies-2">-</td>
                         </tr>
                         <tr id="fila-zona-3">
                             <td>Zona 3</td>
