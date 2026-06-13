@@ -1,7 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Partida, EspaiCultiu
 
+
 # --- PANTALLES BÀSIQUES ---
+
+def menu_inici(request):
+    return render(request, 'inici.html')
+
+def pantalla_crear_partida(request):
+    return render(request, 'crear_partida.html')
 
 def pantalla_login(request):
     return render(request, 'login.html')
@@ -10,8 +17,19 @@ def pantalla_perfil(request):
     return render(request, 'perfil.html')
 
 def mapa_granja(request):
-    return render(request, 'mapa.html')
+    partida = Partida.objects.first()
+    return render(request, 'mapa.html', {'partida': partida})
 
+def passar_dia(request):
+    if request.method == 'POST':
+        partida = Partida.objects.first()
+        if partida:
+            partida.dia += 1
+            partida.nivell_energia = 270  
+            partida.save()
+            
+            
+    return redirect('/mapa')
 
 # --- ZONES DEL JOC ---
 
