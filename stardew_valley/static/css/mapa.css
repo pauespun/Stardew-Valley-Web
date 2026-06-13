@@ -93,3 +93,29 @@ body {
     background-color: #ffd54f;
     transform: scale(1.05);
 }
+
+.form-passar-dia {
+    position: absolute;
+    bottom: 25px;
+    left: 30px;
+    z-index: 30;
+}
+
+.boto-passar-dia {
+    background-color: #3f51b5;
+    color: #ffffff;
+    padding: 10px 24px;
+    font-size: 28px;
+    font-weight: bold;
+    font-family: 'VT323', monospace;
+    border: 4px solid #1a237e;
+    border-radius: 8px;
+    box-shadow: 3px 4px 0px rgba(0,0,0,0.4);
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.boto-passar-dia:hover {
+    background-color: #5c6bc0;
+    transform: scale(1.05);
+}
