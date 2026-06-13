@@ -87,6 +87,7 @@ DATABASES = {
         "OPTIONS": {
             "options": "-c search_path=practica"
         },
+        'CONN_MAX_AGE': 600,
     }
 }
 

@@ -8,9 +8,9 @@
 {% block content %}
 <div class="pantalla-granja">
     <div class="hud-superior">
-        <div class="hud-esquerra">💰 <span id="diners">500</span>G</div>
+        <div class="hud-esquerra">💰 <span id="diners">{{ partida.diners|default:"500" }}</span>G</div>
         <div class="hud-centre">🌱 Dia 1 - Primavera</div>
-        <div class="hud-dreta">⚡ <span id="energia">270</span>/270</div>
+        <div class="hud-dreta">⚡ <span id="energia">{{ partida.nivell_energia|default:"270" }}</span>/270</div>
     </div>
 
     <div class="contingut-granja">
@@ -19,10 +19,14 @@
             <div class="terreny-proporcional">
                 <img src="{% static 'img/Granja.webp' %}" alt="Terreny de la Granja" class="imatge-terreny">
                 
-                <button id="btn-zona-1" class="boto-plantar" style="top: 28%; left: 36%;" onclick="obrirModalPlantar(1)">Plantar</button>
-                <button id="btn-zona-2" class="boto-plantar" style="top: 28%; left: 65%;" onclick="obrirModalPlantar(2)">Plantar</button>
-                <button id="btn-zona-3" class="boto-plantar" style="top: 57%; left: 36%;" onclick="obrirModalPlantar(3)">Plantar</button>
-                <button id="btn-zona-4" class="boto-plantar" style="top: 57%; left: 65%;" onclick="obrirModalPlantar(4)">Plantar</button>
+                {% for espai in espais %}
+                    <button id="btn-zona-{{ espai.numero_parcela }}" 
+                            class="boto-plantar {% if espai.llavor %}plantat{% endif %}" 
+                            style="top: {{ espai.top }}; left: {{ espai.left }};" 
+                            {% if espai.llavor %}disabled{% else %}onclick="obrirModalPlantar({{ espai.numero_parcela }})"{% endif %}>
+                        {% if espai.llavor %}Plantat{% else %}Plantar{% endif %}
+                    </button>
+                {% endfor %}
             </div>
             
             <a href="/mapa" class="boto-tornar">Tornar al Mapa</a>
@@ -41,30 +45,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr id="fila-zona-1">
-                            <td>Zona 1</td>
-                            <td id="cultiu-1" class="buit">Buit</td>
-                            <td id="quant-1">-</td>
-                            <td id="dies-1">-</td>
-                        </tr>
-                        <tr id="fila-zona-2">
-                            <td>Zona 2</td>
-                            <td id="cultiu-2" class="buit">Buit</td>
-                            <td id="quant-2">-</td>
-                            <td id="dies-2">-</td>
-                        </tr>
-                        <tr id="fila-zona-3">
-                            <td>Zona 3</td>
-                            <td id="cultiu-3" class="buit">Buit</td>
-                            <td id="quant-3">-</td>
-                            <td id="dies-3">-</td>
-                        </tr>
-                        <tr id="fila-zona-4">
-                            <td>Zona 4</td>
-                            <td id="cultiu-4" class="buit">Buit</td>
-                            <td id="quant-4">-</td>
-                            <td id="dies-4">-</td>
-                        </tr>
+                        {% for espai in espais %}
+                            <tr id="fila-zona-{{ espai.numero_parcela }}" class="{% if espai.llavor %}fila-plantada{% endif %}">
+                                <td>Zona {{ espai.numero_parcela }}</td>
+                                {% if espai.llavor %}
+                                    <td id="cultiu-{{ espai.numero_parcela }}">{{ espai.llavor.cultiu.id_article.nom_article }}</td>
+                                    <td id="quant-{{ espai.numero_parcela }}">1</td>
+                                    <td id="dies-{{ espai.numero_parcela }}">🌱 {{ espai.llavor.cultiu.temps_creixement }} dies</td>
+                                {% else %}
+                                    <td id="cultiu-{{ espai.numero_parcela }}" class="buit">Buit</td>
+                                    <td id="quant-{{ espai.numero_parcela }}">-</td>
+                                    <td id="dies-{{ espai.numero_parcela }}">-</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

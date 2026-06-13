@@ -26,18 +26,12 @@ class Estacio(models.Model):
         return self.nom_estacio
 
 class Usuari(models.Model):
-    id_usuari = models.AutoField(
-        primary_key=True
-    )
-
-    nom_usuari = models.CharField(
-        max_length=100
-    )
-
-    email = models.CharField(
-        max_length=150,
-        unique=True
-    )
+    id_usuari = models.AutoField(primary_key=True)
+    nom_usuari = models.CharField(max_length=100)
+    email = models.CharField(max_length=150, unique=True)
+    
+    # NOU CAMP: Contrasenya (Posem un max_length llarg per si s'encripta en el futur)
+    contrasenya = models.CharField(max_length=255, default="1234")
 
     class Meta:
         db_table = "usuari"
@@ -46,15 +40,12 @@ class Usuari(models.Model):
         return self.nom_usuari
 
 class Partida(models.Model):
-    id_partida = models.AutoField(
-        primary_key=True
-    )
-
-    nom_granja = models.CharField(
-        max_length=100
-    )
-
+    id_partida = models.AutoField(primary_key=True)
+    nom_granja = models.CharField(max_length=100)
     nivell_energia = models.IntegerField()
+    
+    # NOU CAMP: Diners (Comencem amb 500G per defecte)
+    diners = models.IntegerField(default=500)
 
     id_usuari = models.ForeignKey(
         "Usuari",
@@ -69,16 +60,9 @@ class Partida(models.Model):
         return self.nom_granja
 
 class Npc(models.Model):
-    id_npc = models.AutoField(
-        primary_key=True
-    )
-
-    nom = models.CharField(
-        max_length=100
-    )
-
+    id_npc = models.AutoField(primary_key=True)
+    nom = models.CharField(max_length=100)
     es_solter = models.BooleanField()
-
     data_aniversari = models.DateField()
 
     class Meta:
@@ -95,23 +79,10 @@ class Article(models.Model):
         PLATA = "Plata", "Plata"
         OR = "Or", "Or"
 
-    id_article = models.AutoField(
-        primary_key=True
-    )
-
-    nom_article = models.CharField(
-        max_length=100
-    )
-
-    preu_venda = models.DecimalField(
-        max_digits=10,
-        decimal_places=2
-    )
-
-    qualitat = models.CharField(
-        max_length=10,
-        choices=TipusQualitat.choices
-    )
+    id_article = models.AutoField(primary_key=True)
+    nom_article = models.CharField(max_length=100)
+    preu_venda = models.DecimalField(max_digits=10, decimal_places=2)
+    qualitat = models.CharField(max_length=10, choices=TipusQualitat.choices)
 
     class Meta:
         db_table = "article"
@@ -126,10 +97,7 @@ class Peix(models.Model):
         primary_key=True,
         db_column="id_article"
     )
-
-    ubicacio_pesca = models.CharField(
-        max_length=100
-    )
+    ubicacio_pesca = models.CharField(max_length=100)
 
     class Meta:
         db_table = "peix"
@@ -144,7 +112,6 @@ class Cultiu(models.Model):
         primary_key=True,
         db_column="id_article"
     )
-
     temps_creixement = models.IntegerField()
 
     class Meta:
@@ -160,7 +127,6 @@ class Plat(models.Model):
         primary_key=True,
         db_column="id_article"
     )
-
     energia_recuperada = models.IntegerField()
 
     class Meta:
@@ -170,14 +136,24 @@ class Plat(models.Model):
         return self.id_article.nom_article
 
 class Llavor(models.Model):
+    # CORRECCIÓ: Ara hereta correctament d'Article!
+    id_article = models.OneToOneField(
+        Article,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        db_column="id_article"
+    )
+    
     preu_compra = models.DecimalField(max_digits=8, decimal_places=2)
-    esta_plantat = models.BooleanField(default=False)
 
     cultiu = models.OneToOneField(
         Cultiu,
         on_delete=models.CASCADE,
         related_name="llavor"
     )
+    
+    class Meta:
+        db_table = "llavor"
 
 class EspaiCultiu(models.Model):
     partida = models.ForeignKey(
@@ -185,7 +161,6 @@ class EspaiCultiu(models.Model):
         on_delete=models.CASCADE,
         related_name="espais_cultiu"
     )
-
     numero_parcela = models.PositiveSmallIntegerField()
     
     llavor = models.ForeignKey(
@@ -195,144 +170,91 @@ class EspaiCultiu(models.Model):
         blank=True,
         related_name="espais_cultiu"
     )
+    
+    # NOUS CAMPS: Quantitat plantada i quan es va plantar
+    quantitat_plantada = models.IntegerField(default=0)
+    data_plantacio = models.DateField(null=True, blank=True)
 
     class Meta:
+        db_table = "espai_cultiu"
         unique_together = ("partida", "numero_parcela")
 
     def __str__(self):
         return f"Partida {self.partida} - Espai {self.numero_parcela}"
 
-class Regal(models.Model):
-    pk = models.CompositePrimaryKey(
-        "id_partida",
-        "id_npc",
-        "id_article",
-        "data_regal"
-    )
-
-    id_partida = models.ForeignKey(
+# NOVA TAULA: Inventari
+class Inventari(models.Model):
+    partida = models.ForeignKey(
         Partida,
         on_delete=models.CASCADE,
         db_column="id_partida"
     )
-
-    id_npc = models.ForeignKey(
-        Npc,
-        on_delete=models.CASCADE,
-        db_column="id_npc"
-    )
-
-    id_article = models.ForeignKey(
+    article = models.ForeignKey(
         Article,
         on_delete=models.CASCADE,
         db_column="id_article"
     )
+    quantitat = models.IntegerField(default=0)
 
+    class Meta:
+        db_table = "inventari"
+        unique_together = ("partida", "article")
+
+    def __str__(self):
+        return f"Partida {self.partida.id_partida} | Article: {self.article.nom_article} | Qty: {self.quantitat}"
+
+
+# --- LECTURA DE RESTA DE TAULES (SENSE CANVIS) ---
+
+class Regal(models.Model):
+    pk = models.CompositePrimaryKey("id_partida", "id_npc", "id_article", "data_regal")
+    id_partida = models.ForeignKey(Partida, on_delete=models.CASCADE, db_column="id_partida")
+    id_npc = models.ForeignKey(Npc, on_delete=models.CASCADE, db_column="id_npc")
+    id_article = models.ForeignKey(Article, on_delete=models.CASCADE, db_column="id_article")
     data_regal = models.DateField()
 
     class Meta:
         db_table = "regal"
 
 class Preferencia(models.Model):
-
-    pk = models.CompositePrimaryKey(
-        "id_npc",
-        "id_article"
-    )
+    pk = models.CompositePrimaryKey("id_npc", "id_article")
 
     class TipusReaccio(models.TextChoices):
         AGRADA = "Agrada", "Agrada"
         NEUTRAL = "Neutral", "Neutral"
         ODIA = "Odia", "Odia"
 
-    id_npc = models.ForeignKey(
-        Npc,
-        on_delete=models.CASCADE,
-        db_column="id_npc"
-    )
-
-    id_article = models.ForeignKey(
-        Article,
-        on_delete=models.CASCADE,
-        db_column="id_article"
-    )
-
-    reaccio = models.CharField(
-        max_length=10,
-        choices=TipusReaccio.choices
-    )
+    id_npc = models.ForeignKey(Npc, on_delete=models.CASCADE, db_column="id_npc")
+    id_article = models.ForeignKey(Article, on_delete=models.CASCADE, db_column="id_article")
+    reaccio = models.CharField(max_length=10, choices=TipusReaccio.choices)
 
     class Meta:
         db_table = "preferencia"
 
 class EsPesca(models.Model):
-
-    pk = models.CompositePrimaryKey(
-        "id_peix",
-        "id_estacio"
-    )
-
-    id_peix = models.ForeignKey(
-        Peix,
-        on_delete=models.CASCADE,
-        db_column="id_peix"
-    )
-
-    id_estacio = models.ForeignKey(
-        Estacio,
-        on_delete=models.CASCADE,
-        db_column="id_estacio"
-    )
+    pk = models.CompositePrimaryKey("id_peix", "id_estacio")
+    id_peix = models.ForeignKey(Peix, on_delete=models.CASCADE, db_column="id_peix")
+    id_estacio = models.ForeignKey(Estacio, on_delete=models.CASCADE, db_column="id_estacio")
 
     class Meta:
         db_table = "es_pesca"
 
 class CreixEn(models.Model):
-
-    pk = models.CompositePrimaryKey(
-        "id_cultiu",
-        "id_estacio"
-    )
-
-    id_cultiu = models.ForeignKey(
-        Cultiu,
-        on_delete=models.CASCADE,
-        db_column="id_cultiu"
-    )
-
-    id_estacio = models.ForeignKey(
-        Estacio,
-        on_delete=models.CASCADE,
-        db_column="id_estacio"
-    )
+    pk = models.CompositePrimaryKey("id_cultiu", "id_estacio")
+    id_cultiu = models.ForeignKey(Cultiu, on_delete=models.CASCADE, db_column="id_cultiu")
+    id_estacio = models.ForeignKey(Estacio, on_delete=models.CASCADE, db_column="id_estacio")
 
     class Meta:
         db_table = "creix_en"
 
 class Recepta(models.Model):
-
-    pk = models.CompositePrimaryKey(
-        "id_plat",
-        "id_ingredient"
-    )
-
-    id_plat = models.ForeignKey(
-        Plat,
-        on_delete=models.CASCADE,
-        db_column="id_plat"
-    )
-
-    id_ingredient = models.ForeignKey(
-        Article,
-        on_delete=models.CASCADE,
-        db_column="id_ingredient"
-    )
-
+    pk = models.CompositePrimaryKey("id_plat", "id_ingredient")
+    id_plat = models.ForeignKey(Plat, on_delete=models.CASCADE, db_column="id_plat")
+    id_ingredient = models.ForeignKey(Article, on_delete=models.CASCADE, db_column="id_ingredient")
     quantitat_necesaria = models.IntegerField()
 
     class Meta:
         db_table = "recepta"
-
         constraints = [
             models.CheckConstraint(
                 condition=Q(quantitat_necesaria__gt=0),
