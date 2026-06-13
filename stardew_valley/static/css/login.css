@@ -71,3 +71,9 @@ body {
     transform: translate(3px, 3px); 
     box-shadow: none;
 }
+
+.error {
+    color: red;
+    font-weight: bold;
+    margin: 10px 0;
+}
