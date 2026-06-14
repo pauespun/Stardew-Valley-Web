@@ -1,7 +1,9 @@
 import random
+import json
+from django.views.decorators.http import require_GET, require_POST
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from .models import Usuari, Partida, EspaiCultiu, Peix, EsPesca, Inventari
+from .models import Usuari, Partida, EspaiCultiu, Peix, EsPesca, Inventari, Llavor
 
 # --- PANTALLES BÀSIQUES ---
 
@@ -192,4 +194,72 @@ def agafar_peix(request, zona):
         "ok": True,
         "energia": partida.nivell_energia,
         "quantitat": item.quantitat,
+    })
+
+@require_GET
+def llistar_llavors(request):
+    if not request.session.get("id_partida"):
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+
+    llavors = Llavor.objects.select_related("id_article").all()
+
+    dades = []
+    for llavor in llavors:
+        dades.append({
+            "id": llavor.id_article.id_article,
+            "nom": llavor.id_article.nom_article,
+            "preu": float(llavor.preu_compra),
+        })
+
+    return JsonResponse({"llavors": dades})
+
+
+@require_POST
+def comprar_llavors(request):
+    id_partida = request.session.get("id_partida")
+
+    if not id_partida:
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+
+    partida = Partida.objects.get(id_partida=id_partida)
+    dades = json.loads(request.body)
+
+    cistella = dades.get("cistella", {})
+
+    total = 0
+    compres = []
+
+    for id_article, quantitat in cistella.items():
+        quantitat = int(quantitat)
+
+        if quantitat <= 0:
+            continue
+
+        llavor = Llavor.objects.get(id_article_id=id_article)
+        subtotal = llavor.preu_compra * quantitat
+
+        total += subtotal
+        compres.append((llavor, quantitat))
+
+    if partida.diners < total:
+        return JsonResponse({
+            "error": "No tens prou diners"
+        }, status=400)
+
+    for llavor, quantitat in compres:
+        item, created = Inventari.objects.get_or_create(
+            partida=partida,
+            article=llavor.id_article,
+            defaults={"quantitat": 0}
+        )
+
+        item.quantitat += quantitat
+        item.save()
+
+    partida.diners -= int(total)
+    partida.save()
+
+    return JsonResponse({
+        "ok": True,
+        "diners": partida.diners
     })

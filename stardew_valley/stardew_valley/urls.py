@@ -31,4 +31,6 @@ urlpatterns = [
     path("pescar/<str:zona>/", views.pescar, name="pescar"),
     path("pescar/<str:zona>/generar/", views.generar_peix, name="generar_peix"),
     path("pescar/<str:zona>/agafar/", views.agafar_peix, name="agafar_peix"),
+    path("botiga/llavors/", views.llistar_llavors, name="llistar_llavors"),
+    path("botiga/comprar/", views.comprar_llavors, name="comprar_llavors"),
 ]

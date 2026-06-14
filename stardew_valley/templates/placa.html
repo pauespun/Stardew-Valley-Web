@@ -141,6 +141,16 @@
 </div>
 
 <script src="{% static 'js/placa_npcs.js' %}"></script>
+
+<form id="csrf-form" style="display: none;">
+    {% csrf_token %}
+</form>
+
+<script>
+    const URL_LLISTAR_LLAVORS = "{% url 'llistar_llavors' %}";
+    const URL_COMPRAR_LLAVORS = "{% url 'comprar_llavors' %}";
+</script>
+
 <script src="{% static 'js/placa_botiga.js' %}"></script>
 <script src="{% static 'js/placa_venda.js' %}"></script>
 
