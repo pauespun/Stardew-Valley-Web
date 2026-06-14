@@ -1,9 +1,10 @@
 import random
 import json
+from datetime import date
 from django.views.decorators.http import require_GET, require_POST
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from .models import Usuari, Partida, EspaiCultiu, Peix, EsPesca, Inventari, Llavor
+from .models import Usuari, Partida, EspaiCultiu, Peix, EsPesca, Inventari, Llavor, Npc, Regal, Preferencia
 
 
 # --- PANTALLES BÀSIQUES ---
@@ -412,4 +413,119 @@ def vendre_articles(request):
     return JsonResponse({
         "ok": True,
         "diners": partida.diners
+    })
+
+@require_GET
+def llistar_npcs(request):
+    if not request.session.get("id_partida"):
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+
+    id_partida = request.session["id_partida"]
+    clau_sessio = f"npc_inici_partida_{id_partida}"
+
+    ultim_npc = Npc.objects.order_by("-id_npc").first()
+
+    if not ultim_npc:
+        return JsonResponse({"npcs": []})
+
+    max_id = ultim_npc.id_npc
+
+    if max_id <= 30:
+        inici = 1
+    else:
+        if clau_sessio not in request.session:
+            request.session[clau_sessio] = random.randint(1, max_id - 30)
+
+        inici = request.session[clau_sessio]
+
+    npcs = Npc.objects.filter(
+        id_npc__gte=inici
+    ).order_by("id_npc")[:30]
+
+    dades = []
+
+    for npc in npcs:
+        dades.append({
+            "id": npc.id_npc,
+            "nom": npc.nom,
+            "aniversari": npc.data_aniversari.strftime("%d/%m"),
+        })
+
+    return JsonResponse({"npcs": dades})
+
+
+@require_GET
+def llistar_inventari_regal(request):
+    id_partida = request.session.get("id_partida")
+
+    if not id_partida:
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+
+    inventari = Inventari.objects.filter(
+        partida_id=id_partida,
+        quantitat__gt=0
+    ).select_related("article").order_by("article__nom_article")
+
+    articles = []
+    for item in inventari:
+        articles.append({
+            "id": item.article.id_article,
+            "nom": item.article.nom_article,
+            "quantitat": item.quantitat,
+        })
+
+    return JsonResponse({"articles": articles})
+
+
+@require_POST
+def regalar_article(request):
+    id_partida = request.session.get("id_partida")
+
+    if not id_partida:
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+
+    dades = json.loads(request.body)
+    id_npc = dades.get("id_npc")
+    id_article = dades.get("id_article")
+
+    partida = Partida.objects.get(id_partida=id_partida)
+
+    try:
+        item = Inventari.objects.get(
+            partida=partida,
+            article_id=id_article
+        )
+    except Inventari.DoesNotExist:
+        return JsonResponse({"error": "No tens aquest article"}, status=400)
+
+    if item.quantitat <= 0:
+        return JsonResponse({"error": "No tens prou quantitat"}, status=400)
+
+    item.quantitat -= 1
+
+    if item.quantitat <= 0:
+        item.delete()
+    else:
+        item.save()
+
+    Regal.objects.create(
+        id_partida=partida,
+        id_npc_id=id_npc,
+        id_article_id=id_article,
+        data_regal=date.today()
+    )
+
+    preferencia = Preferencia.objects.filter(
+        id_npc_id=id_npc,
+        id_article_id=id_article
+    ).first()
+
+    if preferencia:
+        reaccio = preferencia.reaccio
+    else:
+        reaccio = "Neutral"
+
+    return JsonResponse({
+        "ok": True,
+        "reaccio": reaccio
     })

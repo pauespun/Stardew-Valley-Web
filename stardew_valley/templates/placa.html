@@ -117,28 +117,23 @@
                         <th>Acció</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>Maduixa</td>
-                        <td>12</td>
-                        <td><button class="boto-acció" onclick="confirmarRegal()">Regalar</button></td>
-                    </tr>
-                    <tr>
-                        <td>Fusta</td>
-                        <td>99</td>
-                        <td><button class="boto-acció" onclick="confirmarRegal()">Regalar</button></td>
-                    </tr>
-                    <tr>
-                        <td>Safir</td>
-                        <td>2</td>
-                        <td><button class="boto-acció" onclick="confirmarRegal()">Regalar</button></td>
-                    </tr>
+                <tbody id="llista-objectes-regal">
                 </tbody>
             </table>
             <button class="boto-tancar" onclick="tancarModalObjectes()">Tornar</button>
         </div>
     </div>
 </div>
+
+<form style="display:none;">
+    {% csrf_token %}
+</form>
+
+<script>
+    const URL_LLISTAR_NPCS = "{% url 'llistar_npcs' %}";
+    const URL_LLISTAR_INVENTARI_REGAL = "{% url 'llistar_inventari_regal' %}";
+    const URL_REGALAR_ARTICLE = "{% url 'regalar_article' %}";
+</script>
 
 <script src="{% static 'js/placa_npcs.js' %}"></script>
 

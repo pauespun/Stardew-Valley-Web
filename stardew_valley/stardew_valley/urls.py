@@ -41,4 +41,7 @@ urlpatterns = [
     path("botiga/inventari-venda/", views.llistar_inventari_venda, name="llistar_inventari_venda"),
     path("botiga/vendre/", views.vendre_articles, name="vendre_articles"),
     path('tancar-sessio/', views.tancar_sessio, name='tancar_sessio'),
+    path("regals/npcs/", views.llistar_npcs, name="llistar_npcs"),
+    path("regals/inventari/", views.llistar_inventari_regal, name="llistar_inventari_regal"),
+    path("regals/regalar/", views.regalar_article, name="regalar_article"),
 ]
