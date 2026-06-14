@@ -325,3 +325,83 @@ def obtenir_partida_actual(request):
         return None
 
     return Partida.objects.get(id_partida=id_partida)
+
+@require_GET
+def llistar_inventari_venda(request):
+    id_partida = request.session.get("id_partida")
+
+    if not id_partida:
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+
+    inventari = Inventari.objects.filter(
+        partida_id=id_partida,
+        quantitat__gt=0
+    ).select_related("article")
+
+    articles = []
+
+    for item in inventari:
+        articles.append({
+            "id": item.article.id_article,
+            "nom": item.article.nom_article,
+            "preu": float(item.article.preu_venda),
+            "estoc": item.quantitat,
+        })
+
+    return JsonResponse({"articles": articles})
+
+
+@require_POST
+def vendre_articles(request):
+    id_partida = request.session.get("id_partida")
+
+    if not id_partida:
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+
+    partida = Partida.objects.get(id_partida=id_partida)
+    dades = json.loads(request.body)
+    cistella = dades.get("cistella", {})
+
+    total = 0
+    vendes = []
+
+    for id_article, quantitat in cistella.items():
+        quantitat = int(quantitat)
+
+        if quantitat <= 0:
+            continue
+
+        try:
+            item = Inventari.objects.select_related("article").get(
+                partida=partida,
+                article_id=id_article
+            )
+        except Inventari.DoesNotExist:
+            return JsonResponse({
+                "error": "Aquest article no existeix al teu inventari"
+            }, status=400)
+
+        if quantitat > item.quantitat:
+            return JsonResponse({
+                "error": f"No tens prou quantitat de {item.article.nom_article}"
+            }, status=400)
+
+        subtotal = item.article.preu_venda * quantitat
+        total += subtotal
+        vendes.append((item, quantitat))
+
+    for item, quantitat in vendes:
+        item.quantitat -= quantitat
+
+        if item.quantitat <= 0:
+            item.delete()
+        else:
+            item.save()
+
+    partida.diners += int(total)
+    partida.save()
+
+    return JsonResponse({
+        "ok": True,
+        "diners": partida.diners
+    })
