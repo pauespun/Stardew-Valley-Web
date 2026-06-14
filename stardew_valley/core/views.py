@@ -77,7 +77,9 @@ def mapa_granja(request):
     if not partida:
         return redirect("login")
 
-    return render(request, "mapa.html", {"partida": partida})
+    inventari = Inventari.objects.filter(partida=partida, quantitat__gt=0).select_related('article')
+
+    return render(request, "mapa.html", {"partida": partida, "inventari": inventari})
 
 def passar_dia(request):
     if request.method == 'POST':

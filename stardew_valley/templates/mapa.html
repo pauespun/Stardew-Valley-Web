@@ -30,6 +30,48 @@
         <button type="submit" class="boto-passar-dia">Dormir (Passar Dia)</button>
     </form>
 
+    <button id="botoObrirInventari" class="boto-inventari">Inventari</button>
+
     <a href="/perfil" class="boto-perfil">Editar Perfil</a>
+
+    <div id="modalInventari" class="fons-modal" style="display: none;">
+        <div class="finestra-inventari">
+            <button id="botoTancarInventari" class="boto-tancar">X</button>
+            <h2>La Teva Motxilla</h2>
+            <div class="graella-inventari">
+                {% for item in inventari %}
+                    <div class="item-inventari">
+                        <span class="nom-item">{{ item.article.nom_article }}</span>
+                        <span class="quantitat-item">x{{ item.quantitat }}</span>
+                    </div>
+                {% empty %}
+                    <p class="inventari-buit">La teva motxilla està buida.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const modal = document.getElementById('modalInventari');
+        const btnObrir = document.getElementById('botoObrirInventari');
+        const btnTancar = document.getElementById('botoTancarInventari');
+
+        btnObrir.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+
+        btnTancar.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Tancar si l'usuari fa clic fora de la finestra
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+</script>
 {% endblock %}
