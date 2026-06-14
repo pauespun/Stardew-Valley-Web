@@ -99,6 +99,16 @@
     .boto-tornar:hover {
         background-color: #f39c12;
     }
+
+    .missatge-error {
+        background-color: #ffdddd;
+        border: 2px solid #cc0000;
+        color: #cc0000;
+        padding: 10px;
+        margin-top: 15px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
 </style>
 {% endblock %}
 
@@ -107,7 +117,8 @@
     <div class="contenidor-formulari">
         <h2 class="titol-crear">Nova Partida</h2>
         
-        <form>
+        <form method="POST" action="{% url 'crear_partida' %}">
+            {% csrf_token %}
             <div class="grup-input">
                 <label for="nom_usuari">Nom d'Usuari:</label>
                 <input type="text" id="nom_usuari" name="nom_usuari" required placeholder="El teu nom al joc">
@@ -128,8 +139,14 @@
                 <input type="text" id="nom_granja" name="nom_granja" required placeholder="Ex: Granja Estel">
             </div>
             
+            {% if error %}
+                <div class="missatge-error">
+                    Error: {{ error }}
+                </div>
+            {% endif %}
+
             <div class="botons-accions">
-                <button type="button" class="boto-enviar">Començar l'Aventura</button>
+                <button type="submit" class="boto-enviar">Començar l'Aventura</button>
                 <a href="/" class="boto-tornar">Tornar al Menú</a>
             </div>
         </form>

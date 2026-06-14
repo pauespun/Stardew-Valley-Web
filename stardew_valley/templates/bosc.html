@@ -8,9 +8,9 @@
 {% block content %}
 <div class="pantalla-bosc">
     <div class="hud-superior">
-        <div class="hud-esquerra">💰 <span id="diners">500</span>G</div>
-        <div class="hud-centre">🌱 Dia 1 - Primavera</div>
-        <div class="hud-dreta">⚡ <span id="energia">270</span>/270</div>
+        <div class="hud-esquerra">💰 <span id="diners">{{ partida.diners }}</span>G</div>
+        <div class="hud-centre">🌱 Dia {{ partida.dia }} - {{ partida.estacio_actual.nom_estacio }}</div>
+        <div class="hud-dreta">⚡ <span id="energia">{{ partida.nivell_energia }}</span>/270</div>
     </div>
 
     <div class="contingut-bosc">
