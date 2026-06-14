@@ -34,14 +34,16 @@ urlpatterns = [
     path("botiga/llavors/", views.llistar_llavors, name="llistar_llavors"),
     path("botiga/comprar/", views.comprar_llavors, name="comprar_llavors"),
     path('', views.menu_inici, name='inici'),
-    path('login/', views.pantalla_login, name='login'),
     path('crear-partida/', views.pantalla_crear_partida, name='crear_partida'),
     path('passar-dia/', views.passar_dia, name='passar_dia'),
-    path("crear-partida/", views.pantalla_crear_partida, name="crear_partida"),
     path("botiga/inventari-venda/", views.llistar_inventari_venda, name="llistar_inventari_venda"),
     path("botiga/vendre/", views.vendre_articles, name="vendre_articles"),
     path('tancar-sessio/', views.tancar_sessio, name='tancar_sessio'),
     path("regals/npcs/", views.llistar_npcs, name="llistar_npcs"),
     path("regals/inventari/", views.llistar_inventari_regal, name="llistar_inventari_regal"),
     path("regals/regalar/", views.regalar_article, name="regalar_article"),
+    
+    # --- NOVES RUTES DE LA GRANJA ---
+    path("granja/inventari-llavors/", views.llistar_inventari_llavors, name="llistar_inventari_llavors"),
+    path("granja/plantar/", views.plantar_cultiu, name="plantar_cultiu"),
 ]

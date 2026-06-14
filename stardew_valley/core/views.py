@@ -151,7 +151,26 @@ def zona_granja(request):
     if not partida:
         return redirect("login")
 
-    return render(request, "granja.html", {"partida": partida})
+    espais = EspaiCultiu.objects.filter(partida=partida).order_by('numero_parcela')
+    if espais.count() == 0:
+        for i in range(1, 5):
+            EspaiCultiu.objects.create(partida=partida, numero_parcela=i)
+        espais = EspaiCultiu.objects.filter(partida=partida).order_by('numero_parcela')
+
+    coords = {
+        1: {"top": "35%", "left": "33%"},
+        2: {"top": "35%", "left": "67%"},
+        3: {"top": "72%", "left": "33%"},
+        4: {"top": "72%", "left": "67%"}
+    }
+    
+    for espai in espais:
+        coord = coords.get(espai.numero_parcela, {"top": "50%", "left": "50%"})
+        espai.top = coord["top"]
+        espai.left = coord["left"]
+
+    return render(request, "granja.html", {"partida": partida, "espais": espais})
+
 
 def zona_poble(request):
     partida = obtenir_partida_actual(request)
@@ -219,7 +238,7 @@ def pescar(request, zona):
 
     relacions = EsPesca.objects.filter(
         id_estacio=partida.estacio_actual,
-        id_peix__ubicacio_pesca=zona
+        id_peix__ubicacio_pesca__iexact=zona
     )
 
     if not relacions.exists():
@@ -255,7 +274,7 @@ def generar_peix(request, zona):
 
     relacions = EsPesca.objects.filter(
         id_estacio=partida.estacio_actual,
-        id_peix__ubicacio_pesca=zona
+        id_peix__ubicacio_pesca__iexact=zona
     )
 
     if not relacions.exists():
@@ -491,7 +510,6 @@ def llistar_npcs(request):
     dades = []
 
     for npc in npcs:
-        # NOU: Calculem l'amistat basant-nos en els regals fets (màxim 10)
         regals_fets = Regal.objects.filter(id_partida=id_partida, id_npc=npc).count()
         amistat = min(regals_fets, 10)
 
@@ -499,7 +517,7 @@ def llistar_npcs(request):
             "id": npc.id_npc,
             "nom": npc.nom,
             "aniversari": npc.data_aniversari.strftime("%d/%m"),
-            "amistat": amistat  # NOU: Enviem l'amistat al Javascript
+            "amistat": amistat
         })
 
     return JsonResponse({"npcs": dades})
@@ -579,3 +597,68 @@ def regalar_article(request):
         "ok": True,
         "reaccio": reaccio
     })
+
+
+# --- fuNCIONS DE LA GRANJA ---
+@require_GET
+def llistar_inventari_llavors(request):
+    id_partida = request.session.get("id_partida")
+    if not id_partida:
+        return JsonResponse({"error": "Sense sessió"}, status=403)
+        
+    inventari = Inventari.objects.filter(
+        partida_id=id_partida, 
+        quantitat__gt=0,
+        article__llavor__isnull=False 
+    ).select_related("article", "article__llavor", "article__llavor__cultiu")
+    
+    llavors = []
+    for item in inventari:
+        llavors.append({
+            "id": item.article.id_article,
+            "nom": item.article.nom_article,
+            "quantitat": item.quantitat,
+            "dies": item.article.llavor.cultiu.temps_creixement
+        })
+    return JsonResponse({"llavors": llavors})
+
+
+
+@require_POST
+def plantar_cultiu(request):
+    id_partida = request.session.get("id_partida")
+    if not id_partida:
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+        
+    dades = json.loads(request.body)
+    numero_parcela = dades.get("parcela")
+    id_article = dades.get("id_article")
+    quantitat = dades.get("quantitat", 1)
+    
+    partida = Partida.objects.get(id_partida=id_partida)
+    
+    try:
+        item = Inventari.objects.get(partida=partida, article_id=id_article)
+    except Inventari.DoesNotExist:
+        return JsonResponse({"error": "No tens aquesta llavor"}, status=400)
+        
+    if item.quantitat < quantitat:
+        return JsonResponse({"error": "No tens prou llavors"}, status=400)
+        
+    espai = EspaiCultiu.objects.filter(partida=partida, numero_parcela=numero_parcela).first()
+    if not espai or espai.llavor:
+        return JsonResponse({"error": "Parcel·la ocupada o invàlida"}, status=400)
+        
+    item.quantitat -= quantitat
+    if item.quantitat <= 0:
+        item.delete()
+    else:
+        item.save()
+        
+    llavor = Llavor.objects.get(id_article_id=id_article)
+    espai.llavor = llavor
+    espai.quantitat_plantada = quantitat
+    espai.data_plantacio = date.today()
+    espai.save()
+    
+    return JsonResponse({"ok": True})

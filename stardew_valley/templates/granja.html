@@ -50,7 +50,7 @@
                                 <td>Zona {{ espai.numero_parcela }}</td>
                                 {% if espai.llavor %}
                                     <td id="cultiu-{{ espai.numero_parcela }}">{{ espai.llavor.cultiu.id_article.nom_article }}</td>
-                                    <td id="quant-{{ espai.numero_parcela }}">1</td>
+                                    <td id="quant-{{ espai.numero_parcela }}">{{ espai.quantitat_plantada }}</td>
                                     <td id="dies-{{ espai.numero_parcela }}">🌱 {{ espai.llavor.cultiu.temps_creixement }} dies</td>
                                 {% else %}
                                     <td id="cultiu-{{ espai.numero_parcela }}" class="buit">Buit</td>
@@ -86,23 +86,32 @@
     </div>
 </div>
 
+<form style="display:none;">
+    {% csrf_token %}
+</form>
+
 <script>
+    // Variables de les rutes
+    const URL_INVENTARI_LLAVORS = "{% url 'llistar_inventari_llavors' %}";
+    const URL_PLANTAR = "{% url 'plantar_cultiu' %}";
+
     let zonaActual = null;
-    
-    let inventariLlavors = [
-        { id: 'xirivia', nom: 'Llavor de Xirivia', quantitat: 15, dies: 4 },
-        { id: 'coliflor', nom: 'Llavor de Coliflor', quantitat: 5, dies: 12 },
-        { id: 'patata', nom: 'Llavor de Patata', quantitat: 8, dies: 6 },
-        { id: 'mongeta', nom: 'Llavor de Mongeta', quantitat: 20, dies: 10 }
-    ];
-    
+    let inventariLlavors = [];
     let valorsPlantar = {};
 
     function obrirModalPlantar(zona) {
         zonaActual = zona;
         document.getElementById('titol-modal-plantar').innerText = `Plantar a la Zona ${zona}`;
         document.getElementById('modal-plantar').style.display = 'flex';
-        renderitzarInventariLlavors();
+        
+        // Ara consultem la motxilla REAL a la base de dades
+        fetch(URL_INVENTARI_LLAVORS)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) { alert(data.error); return; }
+                inventariLlavors = data.llavors;
+                renderitzarInventariLlavors();
+            });
     }
 
     function tancarModalPlantar() {
@@ -114,6 +123,11 @@
         const tbody = document.getElementById('llista-llavors-inventari');
         tbody.innerHTML = '';
         valorsPlantar = {};
+
+        if (inventariLlavors.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4">No tens cap llavor a la motxilla. Vés a ca l\'es Pierre!</td></tr>';
+            return;
+        }
 
         inventariLlavors.forEach(llavor => {
             if (llavor.quantitat > 0) {
@@ -137,7 +151,7 @@
     }
 
     function canviarQuantitat(id, canvi) {
-        const llavor = inventariLlavors.find(l => l.id === id);
+        const llavor = inventariLlavors.find(l => l.id == id);
         let novaQuantitat = valorsPlantar[id] + canvi;
         if (novaQuantitat < 1) novaQuantitat = 1;
         if (novaQuantitat > llavor.quantitat) novaQuantitat = llavor.quantitat;
@@ -154,27 +168,31 @@
     }
 
     function confirmarPlantacio(id) {
-        const llavor = inventariLlavors.find(l => l.id === id);
         const quantitatPlantada = valorsPlantar[id];
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        llavor.quantitat -= quantitatPlantada;
-
-        const fila = document.getElementById(`fila-zona-${zonaActual}`);
-        fila.className = 'fila-plantada';
-        
-        const nomCurt = llavor.nom.replace('Llavor de ', '');
-        
-        document.getElementById(`cultiu-${zonaActual}`).innerText = nomCurt;
-        document.getElementById(`cultiu-${zonaActual}`).className = '';
-        document.getElementById(`quant-${zonaActual}`).innerText = quantitatPlantada;
-        document.getElementById(`dies-${zonaActual}`).innerText = `🌱 ${llavor.dies} dies`;
-
-        const btn = document.getElementById(`btn-zona-${zonaActual}`);
-        btn.innerText = 'Plantat';
-        btn.className = 'boto-plantar plantat';
-        btn.disabled = true;
-
-        tancarModalPlantar();
+        // Guardem el canvi a PostgreSQL
+        fetch(URL_PLANTAR, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({
+                parcela: zonaActual,
+                id_article: id,
+                quantitat: quantitatPlantada
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) { 
+                alert(data.error); 
+                return; 
+            }
+            // Màgia: un cop guardat, recarreguem la pàgina perquè Django renderitzi la granja actualitzada!
+            window.location.reload();
+        });
     }
 </script>
 {% endblock %}
