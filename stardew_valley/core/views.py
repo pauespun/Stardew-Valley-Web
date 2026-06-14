@@ -12,7 +12,38 @@ def menu_inici(request):
     return render(request, 'inici.html')
 
 def pantalla_crear_partida(request):
-    return render(request, 'crear_partida.html')
+    if request.method == "POST":
+        nom_usuari = request.POST.get("nom_usuari")
+        email = request.POST.get("email_usuari")
+        contrasenya = request.POST.get("contrasenya")
+        nom_granja = request.POST.get("nom_granja")
+
+        try:
+            usuari = Usuari.objects.get(
+                nom_usuari=nom_usuari,
+                email=email,
+                contrasenya=contrasenya
+            )
+        except Usuari.DoesNotExist:
+            return render(request, "crear_partida.html", {
+                "error": "L'usuari no existeix o les dades no són correctes"
+            })
+
+        partida = Partida.objects.create(
+            nom_granja=nom_granja,
+            nivell_energia=270,
+            diners=500,
+            dia=1,
+            estacio_actual_id="PRIM",
+            id_usuari=usuari
+        )
+
+        request.session["id_usuari"] = usuari.id_usuari
+        request.session["id_partida"] = partida.id_partida
+
+        return redirect("mapa")
+
+    return render(request, "crear_partida.html")
 
 def pantalla_login(request):
     if request.method == "POST":
@@ -42,10 +73,11 @@ def pantalla_perfil(request):
     return render(request, 'perfil.html')
 
 def mapa_granja(request):
-    if not request.session.get("id_usuari") or not request.session.get("id_partida"):
+    partida = obtenir_partida_actual(request)
+    if not partida:
         return redirect("login")
 
-    return render(request, "mapa.html")
+    return render(request, "mapa.html", {"partida": partida})
 
 def passar_dia(request):
     if request.method == 'POST':
@@ -60,34 +92,39 @@ def passar_dia(request):
 
 # --- ZONES DEL JOC ---
 def zona_granja(request):
-    if not request.session.get("id_partida"):
+    partida = obtenir_partida_actual(request)
+    if not partida:
         return redirect("login")
 
-    return render(request, "granja.html")
+    return render(request, "granja.html", {"partida": partida})
 
 def zona_poble(request):
-    if not request.session.get("id_partida"):
+    partida = obtenir_partida_actual(request)
+    if not partida:
         return redirect("login")
 
-    return render(request, "placa.html")
+    return render(request, "placa.html", {"partida": partida})
 
 def zona_platja(request):
-    if not request.session.get("id_partida"):
+    partida = obtenir_partida_actual(request)
+    if not partida:
         return redirect("login")
 
-    return render(request, "platja.html")
+    return render(request, "platja.html", {"partida": partida})
 
 def zona_muntanya(request):
-    if not request.session.get("id_partida"):
+    partida = obtenir_partida_actual(request)
+    if not partida:
         return redirect("login")
 
-    return render(request, "muntanya.html")
+    return render(request, "muntanya.html", {"partida": partida})
 
 def zona_bosc(request):
-    if not request.session.get("id_partida"):
+    partida = obtenir_partida_actual(request)
+    if not partida:
         return redirect("login")
 
-    return render(request, "bosc.html")
+    return render(request, "bosc.html", {"partida": partida})
 
 def pantalla_perfil(request):
     id_usuari = request.session.get("id_usuari")
@@ -280,3 +317,11 @@ def comprar_llavors(request):
         "ok": True,
         "diners": partida.diners
     })
+
+def obtenir_partida_actual(request):
+    id_partida = request.session.get("id_partida")
+
+    if not id_partida:
+        return None
+
+    return Partida.objects.get(id_partida=id_partida)

@@ -37,4 +37,5 @@ urlpatterns = [
     path('login/', views.pantalla_login, name='login'),
     path('crear-partida/', views.pantalla_crear_partida, name='crear_partida'),
     path('passar-dia/', views.passar_dia, name='passar_dia'),
+    path("crear-partida/", views.pantalla_crear_partida, name="crear_partida"),
 ]
