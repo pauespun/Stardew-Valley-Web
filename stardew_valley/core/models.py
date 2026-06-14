@@ -30,7 +30,6 @@ class Usuari(models.Model):
     nom_usuari = models.CharField(max_length=100)
     email = models.CharField(max_length=150, unique=True)
     
-    # NOU CAMP: Contrasenya (Posem un max_length llarg per si s'encripta en el futur)
     contrasenya = models.CharField(max_length=255, default="1234")
 
     class Meta:
@@ -44,7 +43,6 @@ class Partida(models.Model):
     nom_granja = models.CharField(max_length=100)
     nivell_energia = models.IntegerField()
     
-    # NOU CAMP: Diners (Comencem amb 500G per defecte)
     diners = models.IntegerField(default=500)
     dia = models.IntegerField(default=1)
 

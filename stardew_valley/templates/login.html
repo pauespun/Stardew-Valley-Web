@@ -6,32 +6,39 @@
 {% endblock %}
 
 {% block content %}
-<div class="cartell-fusta">
-    <h1>Login</h1>
-    
-    <form method="POST" action="">
-        {% csrf_token %} 
+<div class="pantalla-login">
+    <div class="contenidor-formulari">
+        <h2 class="titol-login">Iniciar Sessio</h2>
         
-        <div class="camp-formulari">
-            <label for="usuari">Nom del granger/a:</label>
-            <input type="text" id="usuari" name="usuari" placeholder="Insereix text..." required>
-        </div>
+        <form method="POST" action="">
+            {% csrf_token %}
+            
+            <div class="grup-input">
+                <label for="usuari">Nom del granger/a:</label>
+                <input type="text" id="usuari" name="usuari" placeholder="El teu nom al joc" required>
+            </div>
 
-        <div class="camp-formulari">
-            <label for="nom_granja">Nom de la Granja:</label>
-            <input type="text" id="nom_granja" name="nom_granja" placeholder="Insereix text..." required>
-        </div>
+            <div class="grup-input">
+                <label for="nom_granja">Nom de la Granja:</label>
+                <input type="text" id="nom_granja" name="nom_granja" placeholder="Ex: Granja Estel" required>
+            </div>
 
-        <div class="camp-formulari">
-            <label for="contrasenya">Contrasenya:</label>
-            <input type="password" id="contrasenya" name="contrasenya" placeholder="Insereix text..." required>
-        </div>
+            <div class="grup-input">
+                <label for="contrasenya">Contrasenya:</label>
+                <input type="password" id="contrasenya" name="contrasenya" placeholder="********" required>
+            </div>
 
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
+            {% if error %}
+            <div class="missatge-error">
+                Error: {{ error }}
+            </div>
+            {% endif %}
 
-        <button type="submit" class="boto-joc">Entrar</button>
-    </form>
+            <div class="botons-accions">
+                <button type="submit" class="boto-enviar">Entrar</button>
+                <a href="/" class="boto-tornar">Tornar al Menu Principal</a>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

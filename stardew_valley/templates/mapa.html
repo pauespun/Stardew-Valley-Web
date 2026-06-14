@@ -8,9 +8,9 @@
 {% block content %}
 <div class="pantalla-interactiva">
     <div class="hud-superior">
-        <div class="hud-item">💰 <span id="diners">500</span>G</div>
-        <div class="hud-item">🌱 Dia 1 - Primavera</div>
-        <div class="hud-item">⚡ <span id="energia">270</span>/270</div>
+        <div class="hud-item">💰 <span id="diners">{{ partida.diners }}</span>G</div>
+        <div class="hud-item">🌱 Dia {{ partida.dia }} - Primavera</div>
+        <div class="hud-item">⚡ <span id="energia">{{ partida.nivell_energia }}</span>/270</div>
     </div>
 
     <div class="contenidor-mapa">
@@ -25,6 +25,11 @@
         </div>
     </div>
     
-    <a href="/perfil" class="boto-perfil">👤 Editar Perfil</a>
+    <form action="/passar-dia/" method="POST" class="form-passar-dia">
+        {% csrf_token %}
+        <button type="submit" class="boto-passar-dia">Dormir (Passar Dia)</button>
+    </form>
+
+    <a href="/perfil" class="boto-perfil">Editar Perfil</a>
 </div>
 {% endblock %}

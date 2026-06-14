@@ -33,4 +33,8 @@ urlpatterns = [
     path("pescar/<str:zona>/agafar/", views.agafar_peix, name="agafar_peix"),
     path("botiga/llavors/", views.llistar_llavors, name="llistar_llavors"),
     path("botiga/comprar/", views.comprar_llavors, name="comprar_llavors"),
+    path('', views.menu_inici, name='inici'),
+    path('login/', views.pantalla_login, name='login'),
+    path('crear-partida/', views.pantalla_crear_partida, name='crear_partida'),
+    path('passar-dia/', views.passar_dia, name='passar_dia'),
 ]

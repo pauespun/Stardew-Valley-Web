@@ -5,7 +5,14 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from .models import Usuari, Partida, EspaiCultiu, Peix, EsPesca, Inventari, Llavor
 
+
 # --- PANTALLES BÀSIQUES ---
+
+def menu_inici(request):
+    return render(request, 'inici.html')
+
+def pantalla_crear_partida(request):
+    return render(request, 'crear_partida.html')
 
 def pantalla_login(request):
     if request.method == "POST":
@@ -40,6 +47,16 @@ def mapa_granja(request):
 
     return render(request, "mapa.html")
 
+def passar_dia(request):
+    if request.method == 'POST':
+        partida = Partida.objects.first()
+        if partida:
+            partida.dia += 1
+            partida.nivell_energia = 270  
+            partida.save()
+            
+            
+    return redirect('/mapa')
 
 # --- ZONES DEL JOC ---
 def zona_granja(request):
