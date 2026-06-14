@@ -1,12 +1,4 @@
-const inventariVenible = [
-    { id: 'peix_llobarro', nom: 'Llobarro', preu: 100, estoc: 4 },
-    { id: 'peix_carpa', nom: 'Carpa', preu: 30, estoc: 12 },
-    { id: 'cultiu_xirivia', nom: 'Xirivia', preu: 35, estoc: 20 },
-    { id: 'cultiu_patata', nom: 'Patata', preu: 80, estoc: 5 },
-    { id: 'plat_amanida', nom: 'Amanida', preu: 110, estoc: 2 },
-    { id: 'plat_truita', nom: 'Truita al forn', preu: 150, estoc: 1 }
-];
-
+let inventariVenible = [];
 let articlesVendaFiltrats = [];
 let cistellaVenda = {};
 let paginaVenda = 1;
@@ -23,12 +15,24 @@ btnVendre.addEventListener('click', obrirVenda);
 function obrirVenda() {
     cistellaVenda = {};
     paginaVenda = 1;
-    inventariVenible.forEach(a => cistellaVenda[a.id] = 0);
-    articlesVendaFiltrats = [...inventariVenible];
     document.getElementById('cercador-venda').value = '';
     modalVendre.style.display = 'flex';
-    renderitzarVenda();
-    actualitzarTotalVenda();
+
+    fetch(URL_LLISTAR_INVENTARI_VENDA)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            inventariVenible = data.articles;
+            inventariVenible.forEach(a => cistellaVenda[a.id] = 0);
+            articlesVendaFiltrats = [...inventariVenible];
+
+            renderitzarVenda();
+            actualitzarTotalVenda();
+        });
 }
 
 function tancarModalVendre() {
@@ -77,11 +81,13 @@ function renderitzarVenda() {
 }
 
 function canviarQuantitatVenda(id, canvi) {
-    const article = inventariVenible.find(a => a.id === id);
+    const article = inventariVenible.find(a => String(a.id) === String(id));
     let actual = parseInt(document.getElementById(`qv-${id}`).value) || 0;
     let nova = actual + canvi;
+
     if (nova < 0) nova = 0;
     if (nova > article.estoc) nova = article.estoc;
+
     document.getElementById(`qv-${id}`).value = nova;
     cistellaVenda[id] = nova;
     actualitzarTotalVenda();
@@ -89,8 +95,10 @@ function canviarQuantitatVenda(id, canvi) {
 
 function inputQuantitatVenda(id, max) {
     let val = parseInt(document.getElementById(`qv-${id}`).value) || 0;
+
     if (val < 0) val = 0;
     if (val > max) val = max;
+
     document.getElementById(`qv-${id}`).value = val;
     cistellaVenda[id] = val;
     actualitzarTotalVenda();
@@ -98,12 +106,39 @@ function inputQuantitatVenda(id, max) {
 
 function actualitzarTotalVenda() {
     let total = 0;
+
     inventariVenible.forEach(article => {
         total += (cistellaVenda[article.id] || 0) * article.preu;
     });
+
     totalVendaEl.innerText = total;
 }
 
 function confirmarVenda() {
-    tancarModalVendre();
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(URL_VENDRE_ARTICLES, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({
+            cistella: cistellaVenda
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        const diners = document.getElementById("diners");
+        if (diners) {
+            diners.innerText = data.diners;
+        }
+
+        tancarModalVendre();
+    });
 }
