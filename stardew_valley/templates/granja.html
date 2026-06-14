@@ -51,8 +51,8 @@
                                 {% if espai.llavor %}
                                     <td id="cultiu-{{ espai.numero_parcela }}">{{ espai.llavor.cultiu.id_article.nom_article }}</td>
                                     <td id="quant-{{ espai.numero_parcela }}">{{ espai.quantitat_plantada }}</td>
-                                    <td id="dies-{{ espai.numero_parcela }}">🌱 {{ espai.llavor.cultiu.temps_creixement }} dies</td>
-                                {% else %}
+                                    <td id="dies-{{ espai.numero_parcela }}">🌱 {{ espai.dies_restants }} dies</td>
+                                    {% else %}
                                     <td id="cultiu-{{ espai.numero_parcela }}" class="buit">Buit</td>
                                     <td id="quant-{{ espai.numero_parcela }}">-</td>
                                     <td id="dies-{{ espai.numero_parcela }}">-</td>

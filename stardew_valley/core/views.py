@@ -103,8 +103,7 @@ def collir_cultius_llestos(partida):
         dies_passats = partida.dia - espai.data_plantacio.day
 
         if dies_passats >= espai.llavor.cultiu.temps_creixement:
-            cultiu = espai.llavor.cultiu
-            article_cultiu = cultiu.id_article
+            article_cultiu = espai.llavor.cultiu.id_article
 
             item, created = Inventari.objects.get_or_create(
                 partida=partida,
@@ -129,8 +128,6 @@ def passar_dia(request):
 
         partida = Partida.objects.get(id_partida=id_partida)
 
-        collir_cultius_llestos(partida)
-
         partida.dia += 1
         partida.nivell_energia = 270
 
@@ -142,6 +139,8 @@ def passar_dia(request):
             partida.estacio_actual_id = ordre_estacions[(index_actual + 1) % 4]
 
         partida.save()
+
+        collir_cultius_llestos(partida)
 
     return redirect("mapa")
 
@@ -168,6 +167,15 @@ def zona_granja(request):
         coord = coords.get(espai.numero_parcela, {"top": "50%", "left": "50%"})
         espai.top = coord["top"]
         espai.left = coord["left"]
+
+        if espai.llavor and espai.data_plantacio:
+            dies_passats = partida.dia - espai.data_plantacio.day
+            espai.dies_restants = espai.llavor.cultiu.temps_creixement - dies_passats
+
+            if espai.dies_restants < 0:
+                espai.dies_restants = 0
+        else:
+            espai.dies_restants = None
 
     return render(request, "granja.html", {"partida": partida, "espais": espais})
 
@@ -603,62 +611,85 @@ def regalar_article(request):
 @require_GET
 def llistar_inventari_llavors(request):
     id_partida = request.session.get("id_partida")
+
     if not id_partida:
-        return JsonResponse({"error": "Sense sessió"}, status=403)
-        
-    inventari = Inventari.objects.filter(
-        partida_id=id_partida, 
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+
+    items = Inventari.objects.filter(
+        partida_id=id_partida,
         quantitat__gt=0,
-        article__llavor__isnull=False 
-    ).select_related("article", "article__llavor", "article__llavor__cultiu")
-    
+        article__llavor__isnull=False
+    ).select_related("article")
+
     llavors = []
-    for item in inventari:
+
+    for item in items:
         llavors.append({
             "id": item.article.id_article,
             "nom": item.article.nom_article,
             "quantitat": item.quantitat,
-            "dies": item.article.llavor.cultiu.temps_creixement
         })
-    return JsonResponse({"llavors": llavors})
 
+    return JsonResponse({"llavors": llavors})
 
 
 @require_POST
 def plantar_cultiu(request):
     id_partida = request.session.get("id_partida")
+
     if not id_partida:
         return JsonResponse({"error": "No hi ha sessió"}, status=403)
-        
+
     dades = json.loads(request.body)
-    numero_parcela = dades.get("parcela")
-    id_article = dades.get("id_article")
-    quantitat = dades.get("quantitat", 1)
-    
+
+    numero_parcela = int(dades.get("parcela"))
+    id_article = int(dades.get("id_article"))
+    quantitat = int(dades.get("quantitat"))
+
+    if quantitat <= 0:
+        return JsonResponse({"error": "Quantitat no vàlida"}, status=400)
+
     partida = Partida.objects.get(id_partida=id_partida)
-    
+
     try:
-        item = Inventari.objects.get(partida=partida, article_id=id_article)
+        llavor = Llavor.objects.get(id_article_id=id_article)
+    except Llavor.DoesNotExist:
+        return JsonResponse({"error": "Aquest article no és una llavor"}, status=400)
+
+    try:
+        item = Inventari.objects.get(
+            partida=partida,
+            article_id=id_article
+        )
     except Inventari.DoesNotExist:
         return JsonResponse({"error": "No tens aquesta llavor"}, status=400)
-        
+
     if item.quantitat < quantitat:
         return JsonResponse({"error": "No tens prou llavors"}, status=400)
-        
-    espai = EspaiCultiu.objects.filter(partida=partida, numero_parcela=numero_parcela).first()
-    if not espai or espai.llavor:
-        return JsonResponse({"error": "Parcel·la ocupada o invàlida"}, status=400)
-        
+
+    espai, created = EspaiCultiu.objects.get_or_create(
+        partida=partida,
+        numero_parcela=numero_parcela,
+        defaults={
+            "llavor": None,
+            "quantitat_plantada": 0,
+            "data_plantacio": None,
+        }
+    )
+
+    if espai.llavor is not None:
+        return JsonResponse({"error": "Aquesta parcel·la ja està plantada"}, status=400)
+
     item.quantitat -= quantitat
+
     if item.quantitat <= 0:
         item.delete()
     else:
         item.save()
-        
-    llavor = Llavor.objects.get(id_article_id=id_article)
+
     espai.llavor = llavor
     espai.quantitat_plantada = quantitat
-    espai.data_plantacio = date.today()
+    espai.data_plantacio = date(2026, 1, partida.dia)
     espai.save()
-    
+
     return JsonResponse({"ok": True})

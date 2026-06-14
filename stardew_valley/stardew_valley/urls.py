@@ -42,8 +42,6 @@ urlpatterns = [
     path("regals/npcs/", views.llistar_npcs, name="llistar_npcs"),
     path("regals/inventari/", views.llistar_inventari_regal, name="llistar_inventari_regal"),
     path("regals/regalar/", views.regalar_article, name="regalar_article"),
-    
-    # --- NOVES RUTES DE LA GRANJA ---
-    path("granja/inventari-llavors/", views.llistar_inventari_llavors, name="llistar_inventari_llavors"),
+    path("granja/llavors/", views.llistar_inventari_llavors, name="llistar_inventari_llavors"),
     path("granja/plantar/", views.plantar_cultiu, name="plantar_cultiu"),
 ]
