@@ -46,7 +46,17 @@ class Partida(models.Model):
     
     # NOU CAMP: Diners (Comencem amb 500G per defecte)
     diners = models.IntegerField(default=500)
+    dia = models.IntegerField(default=1)
 
+    # NOU CAMP: En quina estació (i any) ens trobem
+    estacio_actual = models.ForeignKey(
+        "Estacio",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_column="id_estacio"
+    )
+    
     id_usuari = models.ForeignKey(
         "Usuari",
         on_delete=models.CASCADE,
