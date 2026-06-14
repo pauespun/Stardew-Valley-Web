@@ -161,7 +161,6 @@ body {
 
 .botiga-modal {
     width: 600px;
-    /* Això forçarà l'alçada mínima perquè no s'encongeixi a la darrera pàgina */
     min-height: 680px; 
 }
 
@@ -262,7 +261,6 @@ body {
 }
 
 .taula-botiga {
-    /* El margin-bottom: auto farà que la taula ocupi l'espai superior i empenyi la resta avall */
     margin-bottom: auto; 
 }
 
@@ -332,4 +330,20 @@ body {
     border-radius: 8px;
     border: 3px solid #5d4037;
     box-sizing: border-box;
+}
+
+/* --- NOU: SCROLL PER A L'INVENTARI DE REGALS --- */
+.contenidor-scroll {
+    width: 100%;
+    max-height: 50vh; 
+    overflow-y: auto; 
+    margin-bottom: 20px;
+    border: 3px solid #5d4037;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+}
+
+.contenidor-scroll .taula-inventari {
+    margin-bottom: 0; 
+    border: none;
 }

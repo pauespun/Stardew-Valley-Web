@@ -109,20 +109,33 @@
     <div id="modal-objectes" class="fons-modal">
         <div class="finestra-modal">
             <h2 id="titol-modal-objectes">Regalar a...</h2>
-            <table class="taula-inventari">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Quantitat</th>
-                        <th>Acció</th>
-                    </tr>
-                </thead>
-                <tbody id="llista-objectes-regal">
-                </tbody>
-            </table>
+            
+            <div class="contenidor-scroll">
+                <table class="taula-inventari">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Quantitat</th>
+                            <th>Acció</th>
+                        </tr>
+                    </thead>
+                    <tbody id="llista-objectes-regal">
+                    </tbody>
+                </table>
+            </div>
+            
             <button class="boto-tancar" onclick="tancarModalObjectes()">Tornar</button>
         </div>
     </div>
+
+    <div id="modal-reaccio" class="fons-modal" style="z-index: 200;">
+        <div class="finestra-modal" style="width: 400px; text-align: center;">
+            <h2>Resposta</h2>
+            <div id="text-reaccio" style="font-size: 32px; margin: 20px 0; color: #3e2723;"></div>
+            <button class="boto-acció" onclick="tancarModalReaccio()">D'acord</button>
+        </div>
+    </div>
+
 </div>
 
 <form style="display:none;">

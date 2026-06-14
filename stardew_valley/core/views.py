@@ -445,14 +445,18 @@ def llistar_npcs(request):
     dades = []
 
     for npc in npcs:
+        # NOU: Calculem l'amistat basant-nos en els regals fets (màxim 10)
+        regals_fets = Regal.objects.filter(id_partida=id_partida, id_npc=npc).count()
+        amistat = min(regals_fets, 10)
+
         dades.append({
             "id": npc.id_npc,
             "nom": npc.nom,
             "aniversari": npc.data_aniversari.strftime("%d/%m"),
+            "amistat": amistat  # NOU: Enviem l'amistat al Javascript
         })
 
     return JsonResponse({"npcs": dades})
-
 
 @require_GET
 def llistar_inventari_regal(request):

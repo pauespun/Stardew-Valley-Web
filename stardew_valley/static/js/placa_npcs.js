@@ -13,6 +13,10 @@ const btnNext = document.getElementById('btn-next');
 const titolModalObjectes = document.getElementById('titol-modal-objectes');
 const llistaObjectesRegal = document.getElementById('llista-objectes-regal');
 
+// NOUS ELEMENTS DEL MODAL DE REACCIÓ
+const modalReaccio = document.getElementById('modal-reaccio');
+const textReaccio = document.getElementById('text-reaccio');
+
 btnRegalarPrincipal.addEventListener('click', obrirModalNpcs);
 btnPrev.addEventListener('click', () => canviarPagina(-1));
 btnNext.addEventListener('click', () => canviarPagina(1));
@@ -52,7 +56,8 @@ function renderitzarNpcs() {
         targeta.innerHTML = `
             <div class="info-npc">
                 <strong>${npc.nom}</strong><br>
-                🎂 ${npc.aniversari}
+                🎂 ${npc.aniversari}<br>
+                ❤️ ${npc.amistat}/10
             </div>
             <button class="boto-acció" onclick="obrirModalObjectes(${npc.id}, '${npc.nom}')">Regalar</button>
         `;
@@ -131,14 +136,35 @@ function confirmarRegal(idArticle) {
     })
     .then(response => response.json())
     .then(data => {
+        // En lloc d'alert(), utilitzem la nova finestra
         if (data.error) {
-            alert(data.error);
+            textReaccio.innerHTML = `<strong>Error:</strong><br>${data.error}`;
+            modalObjectes.style.display = 'none';
+            modalReaccio.style.display = 'flex';
             return;
         }
 
-        alert(`Reacció: ${data.reaccio}`);
+        // Afegim una mica de sabor (emojis) segons la reacció
+        let icona = "😐";
+        let reaccioNeta = data.reaccio;
+        
+        if (reaccioNeta.includes("M'encanta")) icona = "🥰";
+        else if (reaccioNeta.includes("M'agrada")) icona = "😊";
+        else if (reaccioNeta.includes("odio")) icona = "🤢";
 
+        textReaccio.innerHTML = `<strong>${reaccioNeta}</strong> ${icona}`;
+
+        // Amaguem els altres modals i mostrem el de la reacció
         modalObjectes.style.display = 'none';
         modalNpcs.style.display = 'none';
+        modalReaccio.style.display = 'flex';
     });
+}
+
+// NOU: Funció per tancar el modal de reacció
+function tancarModalReaccio() {
+    modalReaccio.style.display = 'none';
+    
+    // Tornem a obrir la llista de NPCs perquè el jugador pugui veure com ha pujat el seu cor ❤️
+    obrirModalNpcs();
 }
