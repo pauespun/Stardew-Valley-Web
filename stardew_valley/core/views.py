@@ -88,16 +88,62 @@ def mapa_granja(request):
 
     return render(request, "mapa.html", {"partida": partida, "inventari": inventari})
 
+def collir_cultius_llestos(partida):
+    espais = EspaiCultiu.objects.filter(
+        partida=partida,
+        llavor__isnull=False,
+        data_plantacio__isnull=False
+    ).select_related(
+        "llavor",
+        "llavor__cultiu",
+        "llavor__cultiu__id_article"
+    )
+
+    for espai in espais:
+        dies_passats = partida.dia - espai.data_plantacio.day
+
+        if dies_passats >= espai.llavor.cultiu.temps_creixement:
+            cultiu = espai.llavor.cultiu
+            article_cultiu = cultiu.id_article
+
+            item, created = Inventari.objects.get_or_create(
+                partida=partida,
+                article=article_cultiu,
+                defaults={"quantitat": 0}
+            )
+
+            item.quantitat += espai.quantitat_plantada
+            item.save()
+
+            espai.llavor = None
+            espai.quantitat_plantada = 0
+            espai.data_plantacio = None
+            espai.save()
+
 def passar_dia(request):
-    if request.method == 'POST':
-        partida = Partida.objects.first()
-        if partida:
-            partida.dia += 1
-            partida.nivell_energia = 270  
-            partida.save()
-            
-            
-    return redirect('/mapa')
+    if request.method == "POST":
+        id_partida = request.session.get("id_partida")
+
+        if not id_partida:
+            return redirect("login")
+
+        partida = Partida.objects.get(id_partida=id_partida)
+
+        collir_cultius_llestos(partida)
+
+        partida.dia += 1
+        partida.nivell_energia = 270
+
+        if partida.dia > 28:
+            partida.dia = 1
+
+            ordre_estacions = ["PRIM", "ESTIU", "TARDOR", "HIVERN"]
+            index_actual = ordre_estacions.index(partida.estacio_actual_id)
+            partida.estacio_actual_id = ordre_estacions[(index_actual + 1) % 4]
+
+        partida.save()
+
+    return redirect("mapa")
 
 # --- ZONES DEL JOC ---
 def zona_granja(request):
