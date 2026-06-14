@@ -40,4 +40,5 @@ urlpatterns = [
     path("crear-partida/", views.pantalla_crear_partida, name="crear_partida"),
     path("botiga/inventari-venda/", views.llistar_inventari_venda, name="llistar_inventari_venda"),
     path("botiga/vendre/", views.vendre_articles, name="vendre_articles"),
+    path('tancar-sessio/', views.tancar_sessio, name='tancar_sessio'),
 ]

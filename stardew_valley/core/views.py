@@ -10,6 +10,12 @@ from .models import Usuari, Partida, EspaiCultiu, Peix, EsPesca, Inventari, Llav
 
 def menu_inici(request):
     return render(request, 'inici.html')
+    
+def tancar_sessio(request):
+
+    request.session.flush()
+
+    return redirect('/')
 
 def pantalla_crear_partida(request):
     if request.method == "POST":

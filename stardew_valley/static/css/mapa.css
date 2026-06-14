@@ -236,3 +236,28 @@ body {
     font-size: 24px;
     color: #795548;
 }
+
+
+
+.boto-tancar-sessio {
+    position: absolute;
+    top: 75px; 
+    right: 30px;
+    background-color: #c62828;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 8px 18px;
+    font-size: 24px;
+    font-weight: bold;
+    border: 3px solid #8e0000;
+    border-radius: 6px;
+    box-shadow: 2px 3px 0px rgba(0,0,0,0.4);
+    z-index: 30;
+    transition: all 0.1s ease;
+}
+
+.boto-tancar-sessio:hover {
+    background-color: #e53935;
+    transform: scale(1.05);
+}
+
