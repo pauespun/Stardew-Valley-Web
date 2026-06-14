@@ -44,9 +44,17 @@ class Partida(models.Model):
     nivell_energia = models.IntegerField()
     
     diners = models.IntegerField(default=500)
-    
     dia = models.IntegerField(default=1)
 
+    # NOU CAMP: En quina estació (i any) ens trobem
+    estacio_actual = models.ForeignKey(
+        "Estacio",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_column="id_estacio"
+    )
+    
     id_usuari = models.ForeignKey(
         "Usuari",
         on_delete=models.CASCADE,

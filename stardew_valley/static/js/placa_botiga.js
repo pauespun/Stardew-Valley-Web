@@ -1,17 +1,4 @@
-const llavorsPrimavera = [
-    { id: 'xirivia', nom: 'Llavor de Xirivia', preu: 20 },
-    { id: 'mongeta', nom: 'Llavor de Mongeta verda', preu: 60 },
-    { id: 'coliflor', nom: 'Llavor de Coliflor', preu: 80 },
-    { id: 'patata', nom: 'Llavor de Patata', preu: 50 },
-    { id: 'tulipa', nom: 'Bulb de Tulipa', preu: 20 },
-    { id: 'all', nom: 'Llavor d\'All', preu: 40 },
-    { id: 'blat', nom: 'Llavor de Blat', preu: 25 },
-    { id: 'bleda', nom: 'Llavor de Bleda', preu: 30 },
-    { id: 'maduixa', nom: 'Llavor de Maduixa', preu: 100 },
-    { id: 'cirerer', nom: 'Planter de Cirerer', preu: 3400 },
-    { id: 'albercoquer', nom: 'Planter d\'Albercoquer', preu: 2000 }
-];
-
+let llavorsBotiga = [];
 let llavorsFiltrades = [];
 let cistella = {};
 let paginaBotiga = 1;
@@ -28,12 +15,24 @@ btnBotiga.addEventListener('click', obrirBotiga);
 function obrirBotiga() {
     cistella = {};
     paginaBotiga = 1;
-    llavorsPrimavera.forEach(l => cistella[l.id] = 0);
-    llavorsFiltrades = [...llavorsPrimavera];
     document.getElementById('cercador-llavors').value = '';
     modalBotiga.style.display = 'flex';
-    renderitzarBotiga();
-    actualitzarTotal();
+
+    fetch(URL_LLISTAR_LLAVORS)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            llavorsBotiga = data.llavors;
+            llavorsBotiga.forEach(l => cistella[l.id] = 0);
+            llavorsFiltrades = [...llavorsBotiga];
+
+            renderitzarBotiga();
+            actualitzarTotal();
+        });
 }
 
 function tancarModalBotiga() {
@@ -42,7 +41,7 @@ function tancarModalBotiga() {
 
 function cercarLlavors() {
     const text = document.getElementById('cercador-llavors').value.toLowerCase();
-    llavorsFiltrades = llavorsPrimavera.filter(l => l.nom.toLowerCase().includes(text));
+    llavorsFiltrades = llavorsBotiga.filter(l => l.nom.toLowerCase().includes(text));
     paginaBotiga = 1;
     renderitzarBotiga();
 }
@@ -100,12 +99,39 @@ function inputQuantitat(id) {
 
 function actualitzarTotal() {
     let total = 0;
-    llavorsPrimavera.forEach(llavor => {
+
+    llavorsBotiga.forEach(llavor => {
         total += (cistella[llavor.id] || 0) * llavor.preu;
     });
+
     totalCompraEl.innerText = total;
 }
 
 function confirmarCompra() {
-    tancarModalBotiga();
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(URL_COMPRAR_LLAVORS, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({
+            cistella: cistella
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        const diners = document.getElementById("diners");
+        if (diners) {
+            diners.innerText = data.diners;
+        }
+
+        tancarModalBotiga();
+    });
 }

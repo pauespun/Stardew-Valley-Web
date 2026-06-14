@@ -57,5 +57,14 @@
     </div>
 </div>
 
+<form id="csrf-form" style="display: none;">
+    {% csrf_token %}
+</form>
+
+<script>
+    const URL_GENERAR_PEIX = "{% url 'generar_peix' 'Platja' %}";
+    const URL_AGAFAR_PEIX = "{% url 'agafar_peix' 'Platja' %}";
+</script>
+
 <script src="{% static 'js/platja_pescar.js' %}"></script>
 {% endblock %}

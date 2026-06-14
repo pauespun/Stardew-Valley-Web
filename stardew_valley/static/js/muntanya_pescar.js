@@ -57,35 +57,45 @@ function aturarPujada() {
 
 function finalitzarPesca() {
     modalMinijoc.style.display = 'none';
-    
-    const peixAleatori = llistaPeixos[Math.floor(Math.random() * llistaPeixos.length)];
-    const qualitatAleatoria = llistaQualitats[Math.floor(Math.random() * llistaQualitats.length)];
-    
-    textPeix.innerText = peixAleatori;
-    
-    if (peixAleatori === "Branca" || peixAleatori === "Ulleres trencades") {
-        textQualitat.innerText = "Deixalles";
-        textQualitat.style.borderColor = "#9e9e9e";
-        textQualitat.style.backgroundColor = "#e0e0e0";
-    } else {
-        textQualitat.innerText = `Qualitat: ${qualitatAleatoria}`;
-        if (qualitatAleatoria === "Or") {
-            textQualitat.style.borderColor = "#ff8f00";
-            textQualitat.style.backgroundColor = "#fff8e1";
-        } else if (qualitatAleatoria === "Plata") {
-            textQualitat.style.borderColor = "#757575";
-            textQualitat.style.backgroundColor = "#f5f5f5";
-        } else {
-            textQualitat.style.borderColor = "#4e342e";
-            textQualitat.style.backgroundColor = "#d7ccc8";
-        }
-    }
-    
-    modalResultat.style.display = 'flex';
+
+    fetch(URL_GENERAR_PEIX)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            textPeix.innerText = data.nom;
+            textQualitat.innerText = `Qualitat: ${data.qualitat}`;
+
+            modalResultat.style.display = 'flex';
+        });
 }
 
 function agafarPeix() {
-    modalResultat.style.display = 'none';
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(URL_AGAFAR_PEIX, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        modalResultat.style.display = 'none';
+
+        const energia = document.getElementById("energia");
+        if (energia) {
+            energia.innerText = data.energia;
+        }
+    });
 }
 
 function tirarPeix() {

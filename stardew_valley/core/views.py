@@ -1,5 +1,9 @@
+import random
+import json
+from django.views.decorators.http import require_GET, require_POST
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from .models import Partida, EspaiCultiu
+from .models import Usuari, Partida, EspaiCultiu, Peix, EsPesca, Inventari, Llavor
 
 
 # --- PANTALLES BÀSIQUES ---
@@ -11,14 +15,37 @@ def pantalla_crear_partida(request):
     return render(request, 'crear_partida.html')
 
 def pantalla_login(request):
-    return render(request, 'login.html')
+    if request.method == "POST":
+        nom_usuari = request.POST.get("usuari")
+        nom_granja = request.POST.get("nom_granja")
+        contrasenya = request.POST.get("contrasenya")
+
+        partida = Partida.objects.filter(
+            nom_granja=nom_granja,
+            id_usuari__nom_usuari=nom_usuari,
+            id_usuari__contrasenya=contrasenya
+        ).select_related("id_usuari").first()
+
+        if partida is None:
+            return render(request, "login.html", {
+                "error": "Usuari, contrasenya o granja incorrectes"
+            })
+
+        request.session["id_usuari"] = partida.id_usuari.id_usuari
+        request.session["id_partida"] = partida.id_partida
+
+        return redirect("mapa")
+
+    return render(request, "login.html")
 
 def pantalla_perfil(request):
     return render(request, 'perfil.html')
 
 def mapa_granja(request):
-    partida = Partida.objects.first()
-    return render(request, 'mapa.html', {'partida': partida})
+    if not request.session.get("id_usuari") or not request.session.get("id_partida"):
+        return redirect("login")
+
+    return render(request, "mapa.html")
 
 def passar_dia(request):
     if request.method == 'POST':
@@ -32,58 +59,224 @@ def passar_dia(request):
     return redirect('/mapa')
 
 # --- ZONES DEL JOC ---
+def zona_granja(request):
+    if not request.session.get("id_partida"):
+        return redirect("login")
+
+    return render(request, "granja.html")
 
 def zona_poble(request):
-    return render(request, 'placa.html')
+    if not request.session.get("id_partida"):
+        return redirect("login")
+
+    return render(request, "placa.html")
 
 def zona_platja(request):
-    return render(request, 'platja.html')
+    if not request.session.get("id_partida"):
+        return redirect("login")
+
+    return render(request, "platja.html")
 
 def zona_muntanya(request):
-    return render(request, 'muntanya.html')
+    if not request.session.get("id_partida"):
+        return redirect("login")
+
+    return render(request, "muntanya.html")
 
 def zona_bosc(request):
-    return render(request, 'bosc.html')
+    if not request.session.get("id_partida"):
+        return redirect("login")
+
+    return render(request, "bosc.html")
+
+def pantalla_perfil(request):
+    id_usuari = request.session.get("id_usuari")
+    id_partida = request.session.get("id_partida")
+
+    if not id_usuari or not id_partida:
+        return redirect("login")
+
+    usuari = Usuari.objects.get(id_usuari=id_usuari)
+    partida = Partida.objects.get(id_partida=id_partida)
+
+    if request.method == "POST":
+        usuari.nom_usuari = request.POST.get("nom_usuari")
+        usuari.email = request.POST.get("email")
+        partida.nom_granja = request.POST.get("nom_granja")
+
+        usuari.save()
+        partida.save()
+
+        return redirect("mapa")
+
+    return render(request, "perfil.html", {
+        "usuari": usuari,
+        "partida": partida,
+    })
+
+def pescar(request, zona):
+    id_partida = request.session.get("id_partida")
+
+    if not id_partida:
+        return redirect("login")
+
+    partida = Partida.objects.get(id_partida=id_partida)
+
+    if partida.nivell_energia < 10:
+        return redirect(zona.lower())
+
+    relacions = EsPesca.objects.filter(
+        id_estacio=partida.estacio_actual,
+        id_peix__ubicacio_pesca=zona
+    )
+
+    if not relacions.exists():
+        return redirect(zona.lower())
+
+    relacio = random.choice(list(relacions))
+    peix = relacio.id_peix
+
+    item, creat = Inventari.objects.get_or_create(
+        partida=partida,
+        article=peix.id_article,
+        defaults={"quantitat": 0}
+    )
+
+    item.quantitat += 1
+    item.save()
+
+    partida.nivell_energia -= 10
+    partida.save()
+
+    return redirect(zona.lower())
+
+def generar_peix(request, zona):
+    id_partida = request.session.get("id_partida")
+
+    if not id_partida:
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+
+    partida = Partida.objects.get(id_partida=id_partida)
+
+    if partida.nivell_energia < 10:
+        return JsonResponse({"error": "No tens prou energia"}, status=400)
+
+    relacions = EsPesca.objects.filter(
+        id_estacio=partida.estacio_actual,
+        id_peix__ubicacio_pesca=zona
+    )
+
+    if not relacions.exists():
+        return JsonResponse({"error": "No hi ha peixos disponibles"}, status=404)
+
+    relacio = random.choice(list(relacions))
+    peix = relacio.id_peix
+    article = peix.id_article
+
+    request.session["peix_capturat_id"] = article.id_article
+
+    return JsonResponse({
+        "nom": article.nom_article,
+        "qualitat": article.qualitat,
+    })
 
 
-# --- ZONA DE LA GRANJA (AMB BASE DE DADES) ---
+def agafar_peix(request, zona):
+    if request.method != "POST":
+        return JsonResponse({"error": "Mètode no permès"}, status=405)
 
-def zona_granja(request):
-    # Agafem la primera partida de la base de dades (com a prova)
-    partida = Partida.objects.first()
-    
-    # Coordenades CSS fixes de les 4 parcel·les
-    coordenades = [
-        {'top': '28%', 'left': '36%'},
-        {'top': '28%', 'left': '65%'},
-        {'top': '57%', 'left': '36%'},
-        {'top': '57%', 'left': '65%'},
-    ]
-    
-    espais_frontend = []
-    
-    # Si la partida existeix, busquem els seus espais
-    if partida:
-        espais_db = EspaiCultiu.objects.filter(partida=partida)
-        espais_dict = {espai.numero_parcela: espai for espai in espais_db}
-    else:
-        espais_dict = {}
+    id_partida = request.session.get("id_partida")
+    id_article = request.session.get("peix_capturat_id")
 
-    # Construïm les 4 parcel·les de forma segura (tinguin dades a la DB o no)
-    for i in range(1, 5):
-        espai_real = espais_dict.get(i)
-        llavor_plantada = espai_real.llavor if espai_real else None
-        
-        espais_frontend.append({
-            'numero_parcela': i,
-            'llavor': llavor_plantada,
-            'top': coordenades[i-1]['top'],
-            'left': coordenades[i-1]['left'],
+    if not id_partida or not id_article:
+        return JsonResponse({"error": "No hi ha captura pendent"}, status=400)
+
+    partida = Partida.objects.get(id_partida=id_partida)
+
+    item, created = Inventari.objects.get_or_create(
+        partida=partida,
+        article_id=id_article,
+        defaults={"quantitat": 0}
+    )
+
+    item.quantitat += 1
+    item.save()
+
+    partida.nivell_energia -= 10
+    partida.save()
+
+    del request.session["peix_capturat_id"]
+
+    return JsonResponse({
+        "ok": True,
+        "energia": partida.nivell_energia,
+        "quantitat": item.quantitat,
+    })
+
+@require_GET
+def llistar_llavors(request):
+    if not request.session.get("id_partida"):
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+
+    llavors = Llavor.objects.select_related("id_article").all()
+
+    dades = []
+    for llavor in llavors:
+        dades.append({
+            "id": llavor.id_article.id_article,
+            "nom": llavor.id_article.nom_article,
+            "preu": float(llavor.preu_compra),
         })
 
-    context = {
-        'partida': partida,
-        'espais': espais_frontend,
-    }
-    
-    return render(request, 'granja.html', context)
+    return JsonResponse({"llavors": dades})
+
+
+@require_POST
+def comprar_llavors(request):
+    id_partida = request.session.get("id_partida")
+
+    if not id_partida:
+        return JsonResponse({"error": "No hi ha sessió"}, status=403)
+
+    partida = Partida.objects.get(id_partida=id_partida)
+    dades = json.loads(request.body)
+
+    cistella = dades.get("cistella", {})
+
+    total = 0
+    compres = []
+
+    for id_article, quantitat in cistella.items():
+        quantitat = int(quantitat)
+
+        if quantitat <= 0:
+            continue
+
+        llavor = Llavor.objects.get(id_article_id=id_article)
+        subtotal = llavor.preu_compra * quantitat
+
+        total += subtotal
+        compres.append((llavor, quantitat))
+
+    if partida.diners < total:
+        return JsonResponse({
+            "error": "No tens prou diners"
+        }, status=400)
+
+    for llavor, quantitat in compres:
+        item, created = Inventari.objects.get_or_create(
+            partida=partida,
+            article=llavor.id_article,
+            defaults={"quantitat": 0}
+        )
+
+        item.quantitat += quantitat
+        item.save()
+
+    partida.diners -= int(total)
+    partida.save()
+
+    return JsonResponse({
+        "ok": True,
+        "diners": partida.diners
+    })

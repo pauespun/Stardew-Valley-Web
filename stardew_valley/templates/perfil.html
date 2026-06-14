@@ -8,35 +8,35 @@
 {% block content %}
 <div class="pantalla-perfil">
     <div class="hud-superior">
-        <div class="hud-esquerra">💰 <span id="diners">500</span>G</div>
+        <div class="hud-esquerra">💰 <span id="diners">{{ partida.diners }}</span>G</div>
         <div class="hud-centre">🌱 Dia 1 - Primavera</div>
-        <div class="hud-dreta">⚡ <span id="energia">270</span>/270</div>
+        <div class="hud-dreta">⚡ <span id="energia">{{ partida.nivell_energia }}</span>/270</div>
     </div>
 
     <div class="contingut-perfil">
         <div class="finestra-perfil">
             <h2>Edició de Perfil</h2>
             
-            <form action="/mapa/" method="POST" class="formulari-perfil">
+            <form method="POST" class="formulari-perfil">
                 {% csrf_token %}
                 
                 <div class="grup-camp">
                     <label for="nom_usuari">Nom d'Usuari:</label>
-                    <input type="text" id="nom_usuari" name="nom_usuari" value="Granger" required>
+                    <input type="text" id="nom_usuari" name="nom_usuari" value="{{ usuari.nom_usuari }}" required>
                 </div>
 
                 <div class="grup-camp">
                     <label for="email">Correu Electrònic:</label>
-                    <input type="email" id="email" name="email" value="granger@stardew.com" required>
+                    <input type="email" id="email" name="email" value="{{ usuari.email }}" required>
                 </div>
 
                 <div class="grup-camp">
                     <label for="nom_granja">Nom de la Granja:</label>
-                    <input type="text" id="nom_granja" name="nom_granja" value="Granja Estel" required>
+                    <input type="text" id="nom_granja" name="nom_granja" value="{{ partida.nom_granja }}" required>
                 </div>
 
                 <div class="botons-formulari">
-                    <a href="/mapa" class="boto-cancelar">Cancel·lar</a>
+                    <a href="{% url 'mapa' %}" class="boto-cancelar">Cancel·lar</a>
                     <button type="submit" class="boto-guardar">Desar Canvis</button>
                 </div>
             </form>
