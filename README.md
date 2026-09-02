@@ -23,6 +23,8 @@ This is an unofficial educational project. It is not affiliated with, endorsed b
 ## Installation
 
 ```bash
+git clone https://github.com/pauespun/Stardew-Valley-Web.git
+cd Stardew-Valley_Web
 python3 -m venv venv
 source venv/bin/activate
 pip install django psycopg2-binary python-decouple
