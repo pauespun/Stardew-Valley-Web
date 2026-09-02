@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block estils_de_pantalla %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pantalla-login">
+    <div class="contenidor-formulari">
+        <h2 class="titol-login">Iniciar Sessio</h2>
+        
+        <form method="POST" action="">
+            {% csrf_token %}
+            
+            <div class="grup-input">
+                <label for="usuari">Nom del granger/a:</label>
+                <input type="text" id="usuari" name="usuari" placeholder="El teu nom al joc" required>
+            </div>
+
+            <div class="grup-input">
+                <label for="nom_granja">Nom de la Granja:</label>
+                <input type="text" id="nom_granja" name="nom_granja" placeholder="Ex: Granja Estel" required>
+            </div>
+
+            <div class="grup-input">
+                <label for="contrasenya">Contrasenya:</label>
+                <input type="password" id="contrasenya" name="contrasenya" placeholder="********" required>
+            </div>
+
+            {% if error %}
+            <div class="missatge-error">
+                Error: {{ error }}
+            </div>
+            {% endif %}
+
+            <div class="botons-accions">
+                <button type="submit" class="boto-enviar">Entrar</button>
+                <a href="/" class="boto-tornar">Tornar al Menu Principal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

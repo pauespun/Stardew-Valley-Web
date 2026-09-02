@@ -1,0 +1,298 @@
+body {
+    font-family: 'VT323', monospace;
+    margin: 0;
+    color: #3e2723;
+    background-color: #111;
+}
+
+.pantalla-granja {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.hud-superior {
+    background-color: #ffecb3; 
+    border-bottom: 4px solid #5d4037;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 30px;
+    font-size: 32px;
+    font-weight: bold;
+    box-sizing: border-box;
+    z-index: 20;
+    height: 55px;
+}
+
+.hud-esquerra, .hud-centre, .hud-dreta {
+    display: flex;
+    align-items: center;
+}
+
+.contingut-granja {
+    display: flex;
+    flex-grow: 1;
+    width: 100%;
+    height: calc(100vh - 55px);
+}
+
+.zona-terreny {
+    width: 60%;
+    background-color: #43a047;
+    border-right: 4px solid #5d4037;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.terreny-proporcional {
+    position: relative;
+    display: inline-block; 
+}
+
+.imatge-terreny {
+    display: block;
+    max-width: 100%;
+    max-height: 70vh; 
+    width: auto;
+    height: auto;
+    border: 6px solid #3e2723;
+    border-radius: 8px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.4);
+    image-rendering: pixelated; 
+}
+
+.boto-plantar {
+    position: absolute;
+    background-color: #ffb300; 
+    color: #3e2723;
+    padding: 6px 16px;
+    border: 3px solid #5d4037;
+    border-radius: 6px;
+    font-family: 'VT323', monospace;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 2px 3px 0px #3e2723;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    transition: all 0.1s ease;
+}
+
+.boto-plantar:hover:not(:disabled) {
+    background-color: #ffe082;
+    transform: translate(-50%, -50%) scale(1.05);
+}
+
+.boto-plantar.plantat {
+    background-color: #b0bec5 !important; 
+    border-color: #78909c !important;
+    color: #546e7a !important;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: translate(-50%, -50%);
+}
+
+.boto-tornar {
+    margin-top: 20px;
+    background-color: #ffecb3;
+    color: #3e2723;
+    text-decoration: none;
+    padding: 6px 18px;
+    font-size: 24px;
+    font-weight: bold;
+    border: 3px solid #5d4037;
+    border-radius: 6px;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.3);
+    transition: background-color 0.1s;
+}
+
+.boto-tornar:hover {
+    background-color: #ffd54f;
+}
+
+.zona-taula {
+    width: 40%;
+    background-color: #2b1810; 
+    padding: 25px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-start;
+}
+
+.cartell-taula {
+    background-color: #d7ccc8; 
+    border: 6px solid #5d4037;
+    border-radius: 12px;
+    width: 100%;
+    padding: 20px;
+    box-shadow: 0px 10px 20px rgba(0,0,0,0.5), inset 0px 0px 15px rgba(0,0,0,0.1);
+}
+
+.cartell-taula h2 {
+    margin-top: 0;
+    text-align: center;
+    font-size: 32px;
+    border-bottom: 4px solid #5d4037;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px #fff;
+}
+
+.taula-cultius {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 22px;
+}
+
+.taula-cultius th {
+    background-color: #5d4037;
+    color: #ffecb3;
+    padding: 10px;
+    border: 2px solid #3e2723;
+    text-align: center;
+}
+
+.taula-cultius td {
+    padding: 12px 10px;
+    border: 2px solid #5d4037;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.taula-cultius td.buit {
+    color: #78909c;
+    font-style: italic;
+}
+
+.fila-plantada td {
+    background-color: #c8e6c9 !important; 
+    color: #1b5e20;
+    font-weight: bold;
+}
+
+.fons-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+}
+
+.finestra-modal {
+    background-color: #d7ccc8;
+    border: 8px solid #5d4037;
+    border-radius: 12px;
+    padding: 25px;
+    width: 700px;
+    max-width: 90%;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.finestra-modal h2 {
+    margin-top: 0;
+    font-size: 38px;
+    border-bottom: 4px solid #5d4037;
+    width: 100%;
+    text-align: center;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.taula-inventari {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.taula-inventari th, .taula-inventari td {
+    border: 2px solid #5d4037;
+    padding: 10px;
+    text-align: center;
+}
+
+.taula-inventari th {
+    background-color: #5d4037;
+    color: #ffecb3;
+}
+
+.taula-inventari td {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.control-quantitat {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.btn-quantitat {
+    background-color: #ffb300;
+    border: 2px solid #5d4037;
+    border-radius: 4px;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+}
+
+.btn-quantitat:hover {
+    background-color: #ffe082;
+}
+
+.input-quantitat {
+    width: 50px;
+    text-align: center;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    border: 2px solid #5d4037;
+    background-color: #fff;
+}
+
+.input-quantitat::-webkit-inner-spin-button,
+.input-quantitat::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.boto-acció, .boto-tancar {
+    background-color: #ffb300;
+    color: #3e2723;
+    padding: 5px 15px;
+    border: 3px solid #5d4037;
+    border-radius: 6px;
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.boto-acció:hover, .boto-tancar:hover {
+    background-color: #ffe082;
+}
+
+.boto-tancar {
+    padding: 10px 30px;
+    font-size: 26px;
+}

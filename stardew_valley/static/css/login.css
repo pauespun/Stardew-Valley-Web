@@ -1,0 +1,112 @@
+.pantalla-login {
+    background-image: url('../img/Fondo.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.contenidor-formulari {
+    background-color: rgba(255, 235, 180, 0.95);
+    border: 6px solid #8b4513;
+    border-radius: 15px;
+    padding: 35px 40px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+    width: 420px;
+}
+
+.titol-login {
+    color: #5c2e0e;
+    margin-bottom: 25px;
+    font-size: 2em;
+    text-shadow: 1px 1px 0px #fff;
+}
+
+.grup-input {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.grup-input label {
+    display: block;
+    font-weight: bold;
+    color: #8b4513;
+    margin-bottom: 5px;
+}
+
+.grup-input input {
+    width: 100%;
+    padding: 10px;
+    border: 3px solid #8b4513;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1.05em;
+    background-color: #fff8e7;
+}
+
+.missatge-error {
+    color: #c0392b;
+    font-weight: bold;
+    background-color: #fadbd8;
+    border: 2px solid #e74c3c;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-size: 0.95em;
+}
+
+.botons-accions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.boto-enviar {
+    background-color: #27ae60;
+    color: white;
+    border: 4px solid #1e8449;
+    padding: 12px 25px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s;
+}
+
+.boto-enviar:hover {
+    background-color: #2ecc71;
+}
+
+.boto-tornar {
+    display: block;
+    background-color: #e67e22;
+    color: white;
+    border: 4px solid #ba530a;
+    padding: 10px 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background 0.2s;
+}
+
+.boto-tornar:hover {
+    background-color: #f39c12;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+    margin: 10px 0;
+}

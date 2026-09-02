@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block estils_de_pantalla %}
+<style>
+    .pantalla-crear {
+        /* CORREGIT: Ara busca la teva imatge exacta */
+        background-image: url('{% static "img/Fondo.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    .contenidor-formulari {
+        background-color: rgba(255, 235, 180, 0.95);
+        border: 6px solid #8b4513;
+        border-radius: 15px;
+        padding: 35px 40px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+        width: 420px;
+    }
+
+    .titol-crear {
+        color: #5c2e0e;
+        margin-bottom: 25px;
+        font-size: 2em;
+        text-shadow: 1px 1px 0px #fff;
+    }
+
+    .grup-input {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    .grup-input label {
+        display: block;
+        font-weight: bold;
+        color: #8b4513;
+        margin-bottom: 5px;
+    }
+
+    .grup-input input {
+        width: 100%;
+        padding: 10px;
+        border: 3px solid #8b4513;
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 1.05em;
+        background-color: #fff8e7;
+    }
+
+    .botons-accions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 25px;
+    }
+
+    .boto-enviar {
+        background-color: #27ae60;
+        color: white;
+        border: 4px solid #1e8449;
+        padding: 12px 25px;
+        font-size: 1.2em;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        transition: background 0.2s;
+    }
+
+    .boto-enviar:hover {
+        background-color: #2ecc71;
+    }
+
+    .boto-tornar {
+        display: block;
+        background-color: #e67e22;
+        color: white;
+        border: 4px solid #ba530a;
+        padding: 10px 25px;
+        font-size: 1.1em;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        width: 100%;
+        box-sizing: border-box;
+        transition: background 0.2s;
+    }
+
+    .boto-tornar:hover {
+        background-color: #f39c12;
+    }
+
+    .missatge-error {
+        background-color: #ffdddd;
+        border: 2px solid #cc0000;
+        color: #cc0000;
+        padding: 10px;
+        margin-top: 15px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pantalla-crear">
+    <div class="contenidor-formulari">
+        <h2 class="titol-crear">Nova Partida</h2>
+        
+        <form method="POST" action="{% url 'crear_partida' %}">
+            {% csrf_token %}
+            <div class="grup-input">
+                <label for="nom_usuari">Nom d'Usuari:</label>
+                <input type="text" id="nom_usuari" name="nom_usuari" required placeholder="El teu nom al joc">
+            </div>
+
+            <div class="grup-input">
+                <label for="email_usuari">Correu Electrònic:</label>
+                <input type="email" id="email_usuari" name="email_usuari" required placeholder="nom@exemple.com">
+            </div>
+
+            <div class="grup-input">
+                <label for="contrasenya_usuari">Contrasenya:</label>
+                <input type="password" id="contrasenya_usuari" name="contrasenya" required placeholder="••••••••">
+            </div>
+
+            <div class="grup-input">
+                <label for="nom_granja">Nom de la Granja:</label>
+                <input type="text" id="nom_granja" name="nom_granja" required placeholder="Ex: Granja Estel">
+            </div>
+            
+            {% if error %}
+                <div class="missatge-error">
+                    Error: {{ error }}
+                </div>
+            {% endif %}
+
+            <div class="botons-accions">
+                <button type="submit" class="boto-enviar">Començar l'Aventura</button>
+                <a href="/" class="boto-tornar">Tornar al Menú</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

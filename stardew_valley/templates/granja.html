@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block estils_de_pantalla %}
+<link rel="stylesheet" href="{% static 'css/granja.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pantalla-granja">
+    <div class="hud-superior">
+        <div class="hud-esquerra">💰 <span id="diners">{{ partida.diners }}</span>G</div>
+        <div class="hud-centre">🌱 Dia {{ partida.dia }} - {{ partida.estacio_actual.nom_estacio }}</div>
+        <div class="hud-dreta">⚡ <span id="energia">{{ partida.nivell_energia }}</span>/270</div>
+    </div>
+
+    <div class="contingut-granja">
+        
+        <div class="zona-terreny">
+            <div class="terreny-proporcional">
+                <img src="{% static 'img/Granja.webp' %}" alt="Terreny de la Granja" class="imatge-terreny">
+                
+                {% for espai in espais %}
+                    <button id="btn-zona-{{ espai.numero_parcela }}" 
+                            class="boto-plantar {% if espai.llavor %}plantat{% endif %}" 
+                            style="top: {{ espai.top }}; left: {{ espai.left }};" 
+                            {% if espai.llavor %}disabled{% else %}onclick="obrirModalPlantar({{ espai.numero_parcela }})"{% endif %}>
+                        {% if espai.llavor %}Plantat{% else %}Plantar{% endif %}
+                    </button>
+                {% endfor %}
+            </div>
+            
+            <a href="/mapa" class="boto-tornar">Tornar al Mapa</a>
+        </div>
+
+        <div class="zona-taula">
+            <div class="cartell-taula">
+                <h2>Estat dels Cultius</h2>
+                <table class="taula-cultius">
+                    <thead>
+                        <tr>
+                            <th>Parcel·la</th>
+                            <th>Cultiu</th>
+                            <th>Quantitat</th>
+                            <th>Dies restants</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for espai in espais %}
+                            <tr id="fila-zona-{{ espai.numero_parcela }}" class="{% if espai.llavor %}fila-plantada{% endif %}">
+                                <td>Zona {{ espai.numero_parcela }}</td>
+                                {% if espai.llavor %}
+                                    <td id="cultiu-{{ espai.numero_parcela }}">{{ espai.llavor.cultiu.id_article.nom_article }}</td>
+                                    <td id="quant-{{ espai.numero_parcela }}">{{ espai.quantitat_plantada }}</td>
+                                    <td id="dies-{{ espai.numero_parcela }}">🌱 {{ espai.dies_restants }} dies</td>
+                                    {% else %}
+                                    <td id="cultiu-{{ espai.numero_parcela }}" class="buit">Buit</td>
+                                    <td id="quant-{{ espai.numero_parcela }}">-</td>
+                                    <td id="dies-{{ espai.numero_parcela }}">-</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="modal-plantar" class="fons-modal">
+        <div class="finestra-modal">
+            <h2 id="titol-modal-plantar">Plantar a la Zona</h2>
+            <table class="taula-inventari">
+                <thead>
+                    <tr>
+                        <th>Llavor</th>
+                        <th>Disponibles</th>
+                        <th>Quantitat a plantar</th>
+                        <th>Acció</th>
+                    </tr>
+                </thead>
+                <tbody id="llista-llavors-inventari">
+                </tbody>
+            </table>
+            <button class="boto-tancar" onclick="tancarModalPlantar()">Cancel·lar</button>
+        </div>
+    </div>
+</div>
+
+<form style="display:none;">
+    {% csrf_token %}
+</form>
+
+<script>
+    // Variables de les rutes
+    const URL_INVENTARI_LLAVORS = "{% url 'llistar_inventari_llavors' %}";
+    const URL_PLANTAR = "{% url 'plantar_cultiu' %}";
+
+    let zonaActual = null;
+    let inventariLlavors = [];
+    let valorsPlantar = {};
+
+    function obrirModalPlantar(zona) {
+        zonaActual = zona;
+        document.getElementById('titol-modal-plantar').innerText = `Plantar a la Zona ${zona}`;
+        document.getElementById('modal-plantar').style.display = 'flex';
+        
+        // Ara consultem la motxilla REAL a la base de dades
+        fetch(URL_INVENTARI_LLAVORS)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) { alert(data.error); return; }
+                inventariLlavors = data.llavors;
+                renderitzarInventariLlavors();
+            });
+    }
+
+    function tancarModalPlantar() {
+        document.getElementById('modal-plantar').style.display = 'none';
+        zonaActual = null;
+    }
+
+    function renderitzarInventariLlavors() {
+        const tbody = document.getElementById('llista-llavors-inventari');
+        tbody.innerHTML = '';
+        valorsPlantar = {};
+
+        if (inventariLlavors.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4">No tens cap llavor a la motxilla. Vés a ca l\'es Pierre!</td></tr>';
+            return;
+        }
+
+        inventariLlavors.forEach(llavor => {
+            if (llavor.quantitat > 0) {
+                valorsPlantar[llavor.id] = 1;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${llavor.nom}</td>
+                    <td>${llavor.quantitat}</td>
+                    <td>
+                        <div class="control-quantitat">
+                            <button class="btn-quantitat" onclick="canviarQuantitat('${llavor.id}', -1)">-</button>
+                            <input type="number" id="q-${llavor.id}" class="input-quantitat" value="1" min="1" max="${llavor.quantitat}" onchange="validarInput('${llavor.id}', ${llavor.quantitat})">
+                            <button class="btn-quantitat" onclick="canviarQuantitat('${llavor.id}', 1)">+</button>
+                        </div>
+                    </td>
+                    <td><button class="boto-acció" onclick="confirmarPlantacio('${llavor.id}')">Plantar</button></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        });
+    }
+
+    function canviarQuantitat(id, canvi) {
+        const llavor = inventariLlavors.find(l => l.id == id);
+        let novaQuantitat = valorsPlantar[id] + canvi;
+        if (novaQuantitat < 1) novaQuantitat = 1;
+        if (novaQuantitat > llavor.quantitat) novaQuantitat = llavor.quantitat;
+        valorsPlantar[id] = novaQuantitat;
+        document.getElementById(`q-${id}`).value = novaQuantitat;
+    }
+
+    function validarInput(id, max) {
+        let val = parseInt(document.getElementById(`q-${id}`).value) || 1;
+        if (val < 1) val = 1;
+        if (val > max) val = max;
+        valorsPlantar[id] = val;
+        document.getElementById(`q-${id}`).value = val;
+    }
+
+    function confirmarPlantacio(id) {
+        const quantitatPlantada = valorsPlantar[id];
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Guardem el canvi a PostgreSQL
+        fetch(URL_PLANTAR, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({
+                parcela: zonaActual,
+                id_article: id,
+                quantitat: quantitatPlantada
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) { 
+                alert(data.error); 
+                return; 
+            }
+            // Màgia: un cop guardat, recarreguem la pàgina perquè Django renderitzi la granja actualitzada!
+            window.location.reload();
+        });
+    }
+</script>
+{% endblock %}

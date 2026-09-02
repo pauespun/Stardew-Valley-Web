@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block estils_de_pantalla %}
+<style>
+    .pantalla-inici {
+        /* CANVIA EL NOM DE LA IMATGE PEL QUE TINGUIS A LA TEVA CARPETA IMG */
+        background-image: url('{% static "img/Fondo.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    .contenidor-menu {
+        background-color: rgba(255, 235, 180, 0.95);
+        border: 6px solid #8b4513;
+        border-radius: 15px;
+        padding: 50px 70px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+    }
+
+    .titol-joc {
+        font-size: 3.5em;
+        color: #5c2e0e;
+        margin-bottom: 40px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 0px #fff, 4px 4px 0px rgba(0,0,0,0.2);
+    }
+
+    .botons-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .boto-menu {
+        display: inline-block;
+        padding: 15px 30px;
+        font-size: 1.3em;
+        font-weight: bold;
+        color: white;
+        background-color: #d2691e;
+        border: 4px solid #8b4513;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .boto-menu:hover {
+        background-color: #e67e22;
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pantalla-inici">
+    <div class="contenidor-menu">
+        <h1 class="titol-joc">Stardew Valley</h1>
+        <div class="botons-menu">
+            <a href="/login" class="boto-menu">Iniciar Sessió</a>
+            <a href="/crear-partida" class="boto-menu">Crear Nova Partida</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

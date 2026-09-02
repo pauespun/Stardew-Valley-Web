@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block estils_de_pantalla %}
+<link rel="stylesheet" href="{% static 'css/perfil.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pantalla-perfil">
+    <div class="hud-superior">
+        <div class="hud-esquerra">💰 <span id="diners">{{ partida.diners }}</span>G</div>
+        <div class="hud-centre">🌱 Dia {{ partida.dia }} - {{ partida.estacio_actual.nom_estacio }}</div>
+        <div class="hud-dreta">⚡ <span id="energia">{{ partida.nivell_energia }}</span>/270</div>
+    </div>
+
+    <div class="contingut-perfil">
+        <div class="finestra-perfil">
+            <h2>Edició de Perfil</h2>
+            
+            <form method="POST" class="formulari-perfil">
+                {% csrf_token %}
+                
+                <div class="grup-camp">
+                    <label for="nom_usuari">Nom d'Usuari:</label>
+                    <input type="text" id="nom_usuari" name="nom_usuari" value="{{ usuari.nom_usuari }}" required>
+                </div>
+
+                <div class="grup-camp">
+                    <label for="email">Correu Electrònic:</label>
+                    <input type="email" id="email" name="email" value="{{ usuari.email }}" required>
+                </div>
+
+                <div class="grup-camp">
+                    <label for="nom_granja">Nom de la Granja:</label>
+                    <input type="text" id="nom_granja" name="nom_granja" value="{{ partida.nom_granja }}" required>
+                </div>
+
+                <div class="botons-formulari">
+                    <a href="{% url 'mapa' %}" class="boto-cancelar">Cancel·lar</a>
+                    <button type="submit" class="boto-guardar">Desar Canvis</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

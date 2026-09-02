@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block estils_de_pantalla %}
+<link rel="stylesheet" href="{% static 'css/placa.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pantalla-placa">
+    <div class="hud-superior">
+        <div class="hud-esquerra">💰 <span id="diners">{{ partida.diners }}</span>G</div>
+        <div class="hud-centre">🌱 Dia {{ partida.dia }} - {{ partida.estacio_actual.nom_estacio }}</div>
+        <div class="hud-dreta">⚡ <span id="energia">{{ partida.nivell_energia }}</span>/270</div>
+    </div>
+
+    <div class="contingut-placa">
+        <div class="zona-terreny">
+            <div class="terreny-proporcional">
+                <img src="{% static 'img/Plaza.png' %}" alt="Plaça del Poble" class="imatge-terreny">
+                
+                <button id="btn-botiga" class="boto-botiga" style="top: 40%; left: 28%;">Comprar</button>
+                <button id="btn-vendre" class="boto-botiga" style="top: 37%; left: 80%;">Vendre</button>
+                <button id="btn-regalar-principal" class="boto-regalar-centre">Regalar</button>
+            </div>
+            
+            <a href="/mapa" class="boto-tornar">Tornar al Mapa</a>
+        </div>
+    </div>
+
+    <div id="modal-botiga" class="fons-modal">
+        <div class="finestra-modal botiga-modal">
+            <h2>La paradeta d'en Pierre</h2>
+            
+            <input type="text" id="cercador-llavors" class="cercador-input" placeholder="Cercar llavor..." onkeyup="cercarLlavors()">
+
+            <table class="taula-botiga">
+                <thead>
+                    <tr>
+                        <th>Llavor (Primavera)</th>
+                        <th>Preu</th>
+                        <th>Quantitat</th>
+                    </tr>
+                </thead>
+                <tbody id="llista-llavors">
+                </tbody>
+            </table>
+            
+            <div class="paginacio">
+                <button onclick="canviarPaginaBotiga(-1)">⬅️</button>
+                <span id="text-paginacio-botiga">Pàgina 1 / 1</span>
+                <button onclick="canviarPaginaBotiga(1)">➡️</button>
+            </div>
+
+            <div class="resum-compra">
+                <span>Total: <span id="total-compra">0</span>G</span>
+                <button class="boto-acció" onclick="confirmarCompra()">Comprar</button>
+            </div>
+            <button class="boto-tancar" onclick="tancarModalBotiga()">Tancar</button>
+        </div>
+    </div>
+
+    <div id="modal-vendre" class="fons-modal">
+        <div class="finestra-modal botiga-modal">
+            <h2>Vendre a en Pierre</h2>
+            
+            <input type="text" id="cercador-venda" class="cercador-input" placeholder="Cercar article..." onkeyup="cercarVenda()">
+
+            <table class="taula-botiga">
+                <thead>
+                    <tr>
+                        <th>Article (Inventari)</th>
+                        <th>Preu (ut.)</th>
+                        <th>Quantitat a Vendre</th>
+                    </tr>
+                </thead>
+                <tbody id="llista-venda">
+                </tbody>
+            </table>
+            
+            <div class="paginacio">
+                <button onclick="canviarPaginaVenda(-1)">⬅️</button>
+                <span id="text-paginacio-venda">Pàgina 1 / 1</span>
+                <button onclick="canviarPaginaVenda(1)">➡️</button>
+            </div>
+
+            <div class="resum-compra">
+                <span>Total: <span id="total-venda">0</span>G</span>
+                <button class="boto-acció" onclick="confirmarVenda()">Vendre</button>
+            </div>
+            <button class="boto-tancar" onclick="tancarModalVendre()">Tancar</button>
+        </div>
+    </div>
+
+    <div id="modal-npcs" class="fons-modal">
+        <div class="finestra-modal">
+            <h2>Veïns del Poble</h2>
+            <div id="llista-npcs" class="grid-npcs">
+            </div>
+            
+            <div class="paginacio">
+                <button id="btn-prev">⬅️</button>
+                <span id="text-paginacio">Pàgina 1 / 5</span>
+                <button id="btn-next">➡️</button>
+            </div>
+            <button class="boto-tancar" onclick="tancarModalNpcs()">Tancar</button>
+        </div>
+    </div>
+
+    <div id="modal-objectes" class="fons-modal">
+        <div class="finestra-modal">
+            <h2 id="titol-modal-objectes">Regalar a...</h2>
+            
+            <div class="contenidor-scroll">
+                <table class="taula-inventari">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Quantitat</th>
+                            <th>Acció</th>
+                        </tr>
+                    </thead>
+                    <tbody id="llista-objectes-regal">
+                    </tbody>
+                </table>
+            </div>
+            
+            <button class="boto-tancar" onclick="tancarModalObjectes()">Tornar</button>
+        </div>
+    </div>
+
+    <div id="modal-reaccio" class="fons-modal" style="z-index: 200;">
+        <div class="finestra-modal" style="width: 400px; text-align: center;">
+            <h2>Resposta</h2>
+            <div id="text-reaccio" style="font-size: 32px; margin: 20px 0; color: #3e2723;"></div>
+            <button class="boto-acció" onclick="tancarModalReaccio()">D'acord</button>
+        </div>
+    </div>
+
+</div>
+
+<form style="display:none;">
+    {% csrf_token %}
+</form>
+
+<script>
+    const URL_LLISTAR_NPCS = "{% url 'llistar_npcs' %}";
+    const URL_LLISTAR_INVENTARI_REGAL = "{% url 'llistar_inventari_regal' %}";
+    const URL_REGALAR_ARTICLE = "{% url 'regalar_article' %}";
+</script>
+
+<script src="{% static 'js/placa_npcs.js' %}"></script>
+
+<form id="csrf-form" style="display: none;">
+    {% csrf_token %}
+</form>
+
+<script>
+    const URL_LLISTAR_LLAVORS = "{% url 'llistar_llavors' %}";
+    const URL_COMPRAR_LLAVORS = "{% url 'comprar_llavors' %}";
+    const URL_LLISTAR_INVENTARI_VENDA = "{% url 'llistar_inventari_venda' %}";
+    const URL_VENDRE_ARTICLES = "{% url 'vendre_articles' %}";
+</script>
+
+<script src="{% static 'js/placa_botiga.js' %}"></script>
+<script src="{% static 'js/placa_venda.js' %}"></script>
+
+{% endblock %}

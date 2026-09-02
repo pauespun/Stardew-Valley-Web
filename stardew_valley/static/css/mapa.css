@@ -1,0 +1,263 @@
+body {
+    font-family: 'VT323', monospace;
+    margin: 0;
+    color: #3e2723;
+}
+
+.pantalla-interactiva {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: absolute; 
+    top: 0;
+    left: 0;
+}
+
+.hud-superior {
+    background-color: #ffecb3; 
+    border-bottom: 4px solid #5d4037;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 30px;
+    font-size: 28px;
+    font-weight: bold;
+    box-sizing: border-box; 
+    z-index: 20;
+}
+
+.contenidor-mapa {
+    flex-grow: 1;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; 
+}
+
+.mapa-proporcional {
+    position: relative; 
+    display: inline-block;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.imatge-mapa {
+    max-width: 100%;
+    max-height: calc(100vh - 54px); 
+    display: block;
+    object-fit: contain; 
+}
+
+.boto-lloc {
+    position: absolute;
+    background-color: rgba(93, 64, 55, 0.9); 
+    color: #fff;
+    padding: 5px 12px;
+    border: 3px solid #ffca28; 
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 18px;
+    font-family: 'VT323', monospace;
+    transition: transform 0.2s, background-color 0.2s;
+    white-space: nowrap;
+    z-index: 10;
+    transform: translate(-50%, -50%);
+}
+
+.boto-lloc:hover {
+    background-color: #795548;
+    transform: translate(-50%, -50%) scale(1.1); 
+    color: #ffca28;
+}
+
+.boto-perfil {
+    position: absolute;
+    bottom: 25px;
+    right: 30px;
+    background-color: #ffecb3;
+    color: #3e2723;
+    text-decoration: none;
+    padding: 10px 24px;
+    font-size: 28px;
+    font-weight: bold;
+    border: 4px solid #5d4037;
+    border-radius: 8px;
+    box-shadow: 3px 4px 0px rgba(0,0,0,0.4);
+    z-index: 30;
+    transition: all 0.1s ease;
+}
+
+.boto-perfil:hover {
+    background-color: #ffd54f;
+    transform: scale(1.05);
+}
+
+.form-passar-dia {
+    position: absolute;
+    bottom: 25px;
+    left: 30px;
+    z-index: 30;
+}
+
+.boto-passar-dia {
+    background-color: #3f51b5;
+    color: #ffffff;
+    padding: 10px 24px;
+    font-size: 28px;
+    font-weight: bold;
+    font-family: 'VT323', monospace;
+    border: 4px solid #1a237e;
+    border-radius: 8px;
+    box-shadow: 3px 4px 0px rgba(0,0,0,0.4);
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.boto-passar-dia:hover {
+    background-color: #5c6bc0;
+    transform: scale(1.05);
+}
+
+.boto-inventari {
+    position: absolute;
+    bottom: 90px; 
+    right: 30px;
+    background-color: #8d6e63;
+    color: #ffffff;
+    padding: 10px 24px;
+    font-size: 28px;
+    font-weight: bold;
+    font-family: 'VT323', monospace;
+    border: 4px solid #4e342e;
+    border-radius: 8px;
+    box-shadow: 3px 4px 0px rgba(0,0,0,0.4);
+    cursor: pointer;
+    z-index: 30;
+    transition: all 0.1s ease;
+}
+
+.boto-inventari:hover {
+    background-color: #a1887f;
+    transform: scale(1.05);
+}
+
+.fons-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.65); 
+    z-index: 100; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.finestra-inventari {
+    background-color: #ffecb3;
+    border: 6px solid #5d4037;
+    border-radius: 12px;
+    width: 60%;
+    max-width: 600px;
+    max-height: 70vh;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+}
+
+.finestra-inventari h2 {
+    text-align: center;
+    color: #3e2723;
+    margin-top: 0;
+    font-size: 36px;
+    border-bottom: 3px dashed #8d6e63;
+    padding-bottom: 10px;
+}
+
+.boto-tancar {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background-color: #c62828;
+    color: white;
+    border: 3px solid #8e0000;
+    border-radius: 5px;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: 'VT323', monospace;
+    cursor: pointer;
+    padding: 2px 10px;
+}
+
+.boto-tancar:hover {
+    background-color: #e53935;
+}
+
+.graella-inventari {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 15px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.item-inventari {
+    background-color: #fff8e1;
+    border: 3px solid #8d6e63;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.nom-item {
+    font-size: 22px;
+    font-weight: bold;
+    color: #4e342e;
+    margin-bottom: 5px;
+}
+
+.quantitat-item {
+    font-size: 20px;
+    color: #d84315;
+    font-weight: bold;
+}
+
+.inventari-buit {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 24px;
+    color: #795548;
+}
+
+
+
+.boto-tancar-sessio {
+    position: absolute;
+    top: 75px; 
+    right: 30px;
+    background-color: #c62828;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 8px 18px;
+    font-size: 24px;
+    font-weight: bold;
+    border: 3px solid #8e0000;
+    border-radius: 6px;
+    box-shadow: 2px 3px 0px rgba(0,0,0,0.4);
+    z-index: 30;
+    transition: all 0.1s ease;
+}
+
+.boto-tancar-sessio:hover {
+    background-color: #e53935;
+    transform: scale(1.05);
+}
+

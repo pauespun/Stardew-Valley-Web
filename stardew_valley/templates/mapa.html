@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block estils_de_pantalla %}
+<link rel="stylesheet" href="{% static 'css/mapa.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pantalla-interactiva">
+    <div class="hud-superior">
+        <div class="hud-item">💰 <span id="diners">{{ partida.diners }}</span>G</div>
+        <div class="hud-item">🌱 Dia {{ partida.dia }} - {{ partida.estacio_actual.nom_estacio }}</div>
+        <div class="hud-item">⚡ <span id="energia">{{ partida.nivell_energia }}</span>/270</div>
+    </div>
+
+    <div class="contenidor-mapa">
+        <div class="mapa-proporcional">
+            <img src="{% static 'img/MapaStardew.webp' %}" alt="Mapa Stardew" class="imatge-mapa">
+            
+            <a href="/granja" class="boto-lloc" style="top: 49%; left: 34%;">Granja</a>
+            <a href="/poble" class="boto-lloc" style="top: 52%; left: 63%;">Poble</a>
+            <a href="/bosc" class="boto-lloc" style="top: 77%; left: 34%;">Bosc</a>
+            <a href="/platja" class="boto-lloc" style="top: 86%; left: 71%;">Platja</a>
+            <a href="/muntanya" class="boto-lloc" style="top: 23%; left: 74%;">Muntanya</a>
+        </div>
+    </div>
+    
+    <form action="/passar-dia/" method="POST" class="form-passar-dia">
+        {% csrf_token %}
+        <button type="submit" class="boto-passar-dia">Dormir (Passar Dia)</button>
+    </form>
+
+    <button id="botoObrirInventari" class="boto-inventari">Inventari</button>
+
+    <a href="/perfil" class="boto-perfil">Editar Perfil</a>
+
+    <a href="/tancar-sessio/" class="boto-tancar-sessio">Tancar Sessio</a>
+
+    <div id="modalInventari" class="fons-modal" style="display: none;">
+        <div class="finestra-inventari">
+            <button id="botoTancarInventari" class="boto-tancar">X</button>
+            <h2>La Teva Motxilla</h2>
+            <div class="graella-inventari">
+                {% for item in inventari %}
+                    <div class="item-inventari">
+                        <span class="nom-item">{{ item.article.nom_article }}</span>
+                        <span class="quantitat-item">x{{ item.quantitat }}</span>
+                    </div>
+                {% empty %}
+                    <p class="inventari-buit">La teva motxilla està buida.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const modal = document.getElementById('modalInventari');
+        const btnObrir = document.getElementById('botoObrirInventari');
+        const btnTancar = document.getElementById('botoTancarInventari');
+
+        btnObrir.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+
+        btnTancar.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Tancar si l'usuari fa clic fora de la finestra
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}
